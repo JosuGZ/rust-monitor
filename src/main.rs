@@ -1,5 +1,6 @@
 mod proc;
 mod parsers;
+mod terminal;
 
 use std::fs::read_dir;
 
@@ -9,26 +10,28 @@ use proc::Proc;
 
 use parsers::get_proc;
 
-fn print_header() {
-  // 16, 8, 16, 16
-  println!("Name             PID      RSS              Swap            >Sum             ");
-}
-
 fn print_line(proc: &Proc) {
+  let mut line: String = "".to_string();
+
   let name_extended: String = proc.status.name.clone() + "                ";
   let name: String = name_extended.chars().take(16).collect();
-  print!("{} ", name);
-  //let remaining = 17 - name.len();
-  // let pid_extended;
+  line = line + &name;
+
   let pid: String = (proc.pid.to_string() + "        ").chars().take(8).collect();
-  print!("{} ", pid);
-  // let rss_extended;
+  line = line + " " + &pid;
+
   let vm_rss: String = (proc.status.vm_rss.to_string() + "                ").chars().take(16).collect();
-  print!("{} ", vm_rss);
+  line = line + " " + &vm_rss;
+
   let vm_swap: String = (proc.status.vm_swap.to_string() + "                ").chars().take(16).collect();
-  print!("{} ", vm_swap);
+  line = line + " " + &vm_swap;
+
   let vm_sum: String = ((proc.status.vm_rss + proc.status.vm_swap).to_string() + "                ").chars().take(16).collect();
-  println!("{} ", vm_sum);
+  line = line + " " + &vm_sum;
+
+  line = line + "\n";
+
+  terminal::print_line(line);
 }
 
 fn do_reading() -> Result<(), std::io::Error> {
@@ -59,7 +62,6 @@ fn do_reading() -> Result<(), std::io::Error> {
     }
   });
 
-  print_header();
   for proc in procs_vec {
     print_line(&proc);
   }
@@ -68,10 +70,22 @@ fn do_reading() -> Result<(), std::io::Error> {
 }
 
 fn main() {
-  // for _ in 0..100 {
+  terminal::init();
+
+  loop {
+    terminal::_clear();
+    terminal::print_header();
     match do_reading() {
       Err(err) => println!("{}", err),
-      _ => println!("Finish!")
+      _ => ()
     }
-  // }
+    terminal::_refresh();
+
+    let key_option = terminal::wait_key();
+    if let Some(_) = key_option {
+      break;
+    }
+  }
+
+  terminal::deinit(); // TODO: Make sure this gets called
 }

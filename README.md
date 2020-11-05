@@ -1,9 +1,4 @@
-# Extensiones
+# Requirements
 
-- rust-lang.rust
-
-
-Objetivos:
-- Ajuste a la pantalla
-- Selección de orden
-- Agrupación
+libcurses
+sudo apt-get install libncurses5-dev
