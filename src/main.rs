@@ -73,13 +73,13 @@ fn main() {
   terminal::init();
 
   loop {
-    terminal::_clear();
+    terminal::clear();
     terminal::print_header();
     match do_reading() {
       Err(err) => println!("{}", err),
       _ => ()
     }
-    terminal::_refresh();
+    terminal::refresh();
 
     let key_option = terminal::wait_key();
     if let Some(_) = key_option {
