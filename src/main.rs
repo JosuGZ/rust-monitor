@@ -4,35 +4,9 @@ mod terminal;
 
 use std::fs::read_dir;
 
-use std::string::String;
-
 use proc::Proc;
 
 use parsers::get_proc;
-
-fn print_line(proc: &Proc) {
-  let mut line: String = "".to_string();
-
-  let name_extended: String = proc.status.name.clone() + "                ";
-  let name: String = name_extended.chars().take(16).collect();
-  line = line + &name;
-
-  let pid: String = (proc.pid.to_string() + "        ").chars().take(8).collect();
-  line = line + " " + &pid;
-
-  let vm_rss: String = (proc.status.vm_rss.to_string() + "                ").chars().take(16).collect();
-  line = line + " " + &vm_rss;
-
-  let vm_swap: String = (proc.status.vm_swap.to_string() + "                ").chars().take(16).collect();
-  line = line + " " + &vm_swap;
-
-  let vm_sum: String = ((proc.status.vm_rss + proc.status.vm_swap).to_string() + "                ").chars().take(16).collect();
-  line = line + " " + &vm_sum;
-
-  line = line + "\n";
-
-  terminal::print_line(line);
-}
 
 fn do_reading() -> Result<(), std::io::Error> {
   let readed = read_dir("/proc")?;
@@ -62,8 +36,8 @@ fn do_reading() -> Result<(), std::io::Error> {
     }
   });
 
-  for proc in procs_vec {
-    print_line(&proc);
+  for (i, proc) in procs_vec.iter().enumerate() {
+    terminal::print_line(&proc, i as i32 + 1);
   }
 
   Result::Ok(())
