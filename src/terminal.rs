@@ -5,6 +5,29 @@ extern crate ncurses;
 use ncurses::*;
 use super::proc::Proc;
 
+pub enum Key {
+  KeyUp,
+  KeyDown,
+  KeyLeft,
+  KeyRight,
+  KeyEnter,
+  KeyEsc
+}
+
+impl Key {
+  fn from_i32(key: i32) -> Option<Key> {
+    return match key {
+      ncurses::KEY_UP => Some(Key::KeyUp),
+      ncurses::KEY_DOWN => Some(Key::KeyDown),
+      ncurses::KEY_LEFT => Some(Key::KeyLeft),
+      ncurses::KEY_RIGHT => Some(Key::KeyRight),
+      ncurses::KEY_ENTER => Some(Key::KeyEnter),
+      27 => Some(Key::KeyEsc),
+      _ => None
+    };
+  }
+}
+
 struct Column<'a> {
   name: &'a str,
   width: i32,
@@ -12,22 +35,30 @@ struct Column<'a> {
 }
 
 static COLUMNS: [Column; 5] = [
-  Column { name: "Name", width: 16, position:  0 },
-  Column { name: "PID",  width:  8, position: 17 },
-  Column { name: "RSS",  width: 16, position: 26 },
-  Column { name: "Swap", width: 16, position: 43 },
-  Column { name: "Sum",  width: 16, position: 60 }
+  Column { name: "Name                        ", width: 16, position:  0 },
+  Column { name: "PID                         ", width:  6, position: 17 },
+  Column { name: "RSS                         ", width:  16, position: 24 },
+  Column { name: "Swap                        ", width:  16, position: 41 },
+  Column { name: "Sum                         ", width:  16, position: 58 }
 ];
 
 pub fn init() {
   initscr();
+  raw();
+  keypad(stdscr(), true);
+  noecho();
   timeout(100);
+  start_color();
 }
 
 pub fn print_header() {
+  init_pair(1, COLOR_BLACK, COLOR_WHITE);
+  attron(COLOR_PAIR(1));
+
   for column in &COLUMNS {
-    mvaddnstr(0, column.position, column.name, column.width);
+    mvaddnstr(0, column.position, column.name, column.width + 1);
   }
+  attroff(COLOR_PAIR(1));
 }
 
 pub fn print_line(proc: &Proc, position: i32) {
@@ -47,14 +78,10 @@ pub fn refresh() {
   ncurses::refresh();
 }
 
-pub fn wait_key() -> Option<i32> { // TODO: Change return
+pub fn wait_key() -> Option<Key> { // TODO: Change return
   let result = getch();
 
-  if result == -1 {
-    return None;
-  } else {
-    return Some(result);
-  }
+  return Key::from_i32(result);
 }
 
 pub fn deinit() {

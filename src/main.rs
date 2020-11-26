@@ -5,6 +5,7 @@ mod terminal;
 use std::fs::read_dir;
 
 use proc::Proc;
+use terminal::Key;
 
 use parsers::get_proc;
 
@@ -56,8 +57,12 @@ fn main() {
     terminal::refresh();
 
     let key_option = terminal::wait_key();
-    if let Some(_) = key_option {
-      break;
+    match key_option {
+      Some(key) => match key {
+        Key::KeyEsc => break,
+        _ => ()
+      },
+      _ => ()
     }
   }
 
