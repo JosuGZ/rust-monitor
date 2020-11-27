@@ -1,3 +1,4 @@
+mod util;
 mod proc;
 mod parsers;
 mod terminal;

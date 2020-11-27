@@ -3,6 +3,7 @@
 extern crate ncurses;
 
 use ncurses::*;
+use super::util::humanize;
 use super::proc::Proc;
 
 pub enum Key {
@@ -37,9 +38,9 @@ struct Column<'a> {
 static COLUMNS: [Column; 5] = [
   Column { name: "Name                        ", width: 16, position:  0 },
   Column { name: "PID                         ", width:  6, position: 17 },
-  Column { name: "RSS                         ", width:  16, position: 24 },
-  Column { name: "Swap                        ", width:  16, position: 41 },
-  Column { name: "Sum                         ", width:  16, position: 58 }
+  Column { name: "RSS                         ", width:  8, position: 24 },
+  Column { name: "Swap                        ", width:  8, position: 33 },
+  Column { name: "Sum                         ", width:  8, position: 42 }
 ];
 
 pub fn init() {
@@ -64,10 +65,10 @@ pub fn print_header() {
 pub fn print_line(proc: &Proc, position: i32) {
   mvaddnstr(position, COLUMNS[0].position, &proc.status.name, COLUMNS[0].width);
   mvaddnstr(position, COLUMNS[1].position, &proc.pid.to_string(), COLUMNS[0].width);
-  mvaddnstr(position, COLUMNS[2].position, &proc.status.vm_rss.to_string(), COLUMNS[0].width);
-  mvaddnstr(position, COLUMNS[3].position, &proc.status.vm_swap.to_string(), COLUMNS[0].width);
+  mvaddnstr(position, COLUMNS[2].position, &humanize(proc.status.vm_rss), COLUMNS[0].width);
+  mvaddnstr(position, COLUMNS[3].position, &humanize(proc.status.vm_swap), COLUMNS[0].width);
   let sum = proc.status.vm_rss + proc.status.vm_swap;
-  mvaddnstr(position, COLUMNS[4].position, &sum.to_string(), COLUMNS[0].width);
+  mvaddnstr(position, COLUMNS[4].position, &humanize(sum), COLUMNS[0].width);
 }
 
 pub fn clear() {
