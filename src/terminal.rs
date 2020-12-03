@@ -50,7 +50,7 @@ pub fn init() {
   raw();
   keypad(stdscr(), true);
   noecho();
-  timeout(100);
+  timeout(2000);
   start_color();
 }
 
