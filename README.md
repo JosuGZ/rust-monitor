@@ -1,9 +1,14 @@
-# Requirements
+# Rust Monitor
 
-libcurses
-sudo apt-get install libncurses5-dev
+A "top" like resource monitor written in Rust.
 
-# Controls
+![Screenshot](Screenshot.png)
+
+## Requirements
+
+libcurses: `sudo apt-get install libncurses5-dev`
+
+## Controls
 
 - `ESC`: Exit.
 - `<` and `>`: Change sorting.
