@@ -4,6 +4,7 @@ mod parsers;
 mod terminal;
 
 use std::fs::read_dir;
+use std::collections::HashMap;
 
 use proc::Proc;
 use terminal::Key;
@@ -67,7 +68,9 @@ static SORT_FUNCTIONS: [SortFunction; 4] = [
   sum_sort_function
 ];
 
-fn do_reading(sort_function_index: usize) -> Result<(), std::io::Error> {
+fn do_reading(
+  sort_function_index: usize, group: bool
+) -> Result<(), std::io::Error> {
   let readed = read_dir("/proc")?;
 
   let procs = readed.enumerate().filter(|val| {
@@ -83,6 +86,19 @@ fn do_reading(sort_function_index: usize) -> Result<(), std::io::Error> {
   }).map(|val| val.unwrap());
 
   let mut procs_vec: Vec<Proc> = procs.collect();
+
+  if group {
+    let mut group = HashMap::new();
+    for proc in procs_vec {
+      let key = proc.status.name.clone();
+      group.entry(key).and_modify(|p: &mut Proc| {
+        (*p).status.vm_rss = (*p).status.vm_rss + proc.status.vm_rss;
+      }).or_insert(proc);
+    }
+
+    procs_vec = group.into_iter().map(|e| e.1).collect();
+  }
+
   procs_vec.sort_by(SORT_FUNCTIONS[sort_function_index]);
 
   for (i, proc) in procs_vec.iter().enumerate() {
@@ -96,11 +112,12 @@ fn main() {
   terminal::init();
 
   let mut sort_function_index: usize = 3;
+  let mut group: bool = false;
 
   loop {
     terminal::clear();
     terminal::print_header(sort_function_index);
-    match do_reading(sort_function_index) {
+    match do_reading(sort_function_index, group) {
       Err(err) => println!("{}", err),
       _ => ()
     }
@@ -122,6 +139,7 @@ fn main() {
             sort_function_index = SORT_FUNCTIONS.len() - 1;
           }
         },
+        Key::KeyGroup => group = !group,
         Key::KeyEsc => break,
         _ => ()
       },

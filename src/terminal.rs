@@ -12,7 +12,8 @@ pub enum Key {
   KeyLeft,
   KeyRight,
   KeyEnter,
-  KeyEsc
+  KeyEsc,
+  KeyGroup
 }
 
 impl Key {
@@ -24,6 +25,7 @@ impl Key {
       ncurses::KEY_RIGHT => Some(Key::KeyRight),
       ncurses::KEY_ENTER => Some(Key::KeyEnter),
       27 => Some(Key::KeyEsc),
+      103 => Some(Key::KeyGroup), // 'g'
       _ => None
     };
   }
