@@ -52,23 +52,36 @@ pub fn init() {
   start_color();
 }
 
-pub fn print_header() {
+pub fn print_header(selected_col: usize) {
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   attron(COLOR_PAIR(1));
 
-  for column in &COLUMNS {
+  for i in 0..COLUMNS.len() {
+    let column = &COLUMNS[i];
     mvaddnstr(0, column.position, column.name, column.width + 1);
+    if i == selected_col + 1 {
+      mvaddnstr(0, column.position -1, ">", 1);
+    }
   }
   attroff(COLOR_PAIR(1));
 }
 
 pub fn print_line(proc: &Proc, position: i32) {
-  mvaddnstr(position, COLUMNS[0].position, &proc.status.name, COLUMNS[0].width);
-  mvaddnstr(position, COLUMNS[1].position, &proc.pid.to_string(), COLUMNS[0].width);
-  mvaddnstr(position, COLUMNS[2].position, &humanize(proc.status.vm_rss), COLUMNS[0].width);
-  mvaddnstr(position, COLUMNS[3].position, &humanize(proc.status.vm_swap), COLUMNS[0].width);
-  let sum = proc.status.vm_rss + proc.status.vm_swap;
-  mvaddnstr(position, COLUMNS[4].position, &humanize(sum), COLUMNS[0].width);
+
+  let value = &proc.status.name;
+  mvaddnstr(position, COLUMNS[0].position, value, COLUMNS[0].width);
+
+  let value = &proc.pid.to_string();
+  mvaddnstr(position, COLUMNS[1].position, value, COLUMNS[1].width);
+
+  let value = &humanize(proc.status.vm_rss);
+  mvaddnstr(position, COLUMNS[2].position, value, COLUMNS[0].width);
+
+  let value = &humanize(proc.status.vm_swap);
+  mvaddnstr(position, COLUMNS[3].position, value, COLUMNS[0].width);
+
+  let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
+  mvaddnstr(position, COLUMNS[4].position, value, COLUMNS[0].width);
 }
 
 pub fn clear() {

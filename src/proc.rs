@@ -1,5 +1,6 @@
 // mod proc;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Proc {
   pub pid: i32,
   pub cmdline: String,
