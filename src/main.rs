@@ -10,6 +10,7 @@ use proc::Proc;
 use terminal::Key;
 
 use parsers::get_proc;
+use parsers::get_uptime;
 
 fn pid_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.pid;
@@ -116,6 +117,7 @@ fn main() {
 
   loop {
     terminal::clear();
+    terminal::print_uptime(&get_uptime());
     terminal::print_header(sort_function_index);
     match do_reading(sort_function_index, group) {
       Err(err) => println!("{}", err),

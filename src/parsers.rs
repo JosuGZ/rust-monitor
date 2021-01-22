@@ -4,8 +4,11 @@ use std::path::Path;
 use std::fs::DirEntry;
 use std::fs::read_to_string;
 
+use std::str::FromStr;
+
 use super::proc::Status;
 use super::proc::Proc;
+use super::proc::Uptime;
 
 #[cfg(test)]
 static STATUS_EXAMPLE_1: &str = "Name:	kworker/0:0-events
@@ -346,4 +349,37 @@ pub fn get_proc(ref entry: DirEntry) -> Option<Proc> {
 
   // Here we are sure we have a number, now we check if it is a process
   return Some(proc);
+}
+
+fn parse_uptime(uptime: &str) -> Uptime {
+  let mut bits = uptime.split_whitespace();
+
+  let up_str = bits.next().unwrap();
+  let up = f64::from_str(up_str).unwrap();
+
+  let idle_str = bits.next().unwrap();
+  let idle = f64::from_str(idle_str).unwrap();
+
+  return Uptime {
+    up: up,
+    idle: idle
+  };
+}
+
+#[test]
+fn parse_uptime_1() {
+  let expected = Uptime {
+    up: 2978723.18_f64,
+    idle: 18677515.22_f64
+  };
+
+  let uptime = parse_uptime("2978723.18 18677515.22");
+
+  assert_eq!(expected, uptime);
+}
+
+pub fn get_uptime() -> Uptime {
+  let uptime_path = Path::new("/proc/uptime");
+  let uptime = read_to_string(uptime_path).unwrap();
+  return parse_uptime(&uptime);
 }

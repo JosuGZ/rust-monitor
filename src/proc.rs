@@ -27,3 +27,9 @@ pub struct Status {
   pub vm_pte: u64,
   pub vm_swap: u64
 }
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Uptime {
+  pub up: f64,
+  pub idle: f64
+}

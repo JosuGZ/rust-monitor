@@ -5,6 +5,7 @@ extern crate ncurses;
 use ncurses::*;
 use super::util::humanize;
 use super::proc::Proc;
+use super::proc::Uptime;
 
 pub enum Key {
   KeyUp,
@@ -54,15 +55,28 @@ pub fn init() {
   start_color();
 }
 
+pub fn print_uptime(uptime: &Uptime) {
+  let seconds_up = uptime.up as i32;
+  let mut minutes_up = seconds_up / 60;
+  let mut hours_up = minutes_up / 60;
+  minutes_up -= hours_up * 60;
+  let days_up = hours_up / 24;
+  hours_up -= days_up * 24;
+
+  let formated = format!("{} days {:02}:{:02}", days_up, hours_up, minutes_up);
+  mvaddnstr(0, 0, "Uptime: ", 20);
+  mvaddnstr(0, 8, &formated, 20);
+}
+
 pub fn print_header(selected_col: usize) {
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   attron(COLOR_PAIR(1));
 
   for i in 0..COLUMNS.len() {
     let column = &COLUMNS[i];
-    mvaddnstr(0, column.position, column.name, column.width + 1);
+    mvaddnstr(1, column.position, column.name, column.width + 1);
     if i == selected_col + 1 {
-      mvaddnstr(0, column.position -1, ">", 1);
+      mvaddnstr(1, column.position -1, ">", 1);
     }
   }
   attroff(COLOR_PAIR(1));
@@ -71,19 +85,19 @@ pub fn print_header(selected_col: usize) {
 pub fn print_line(proc: &Proc, position: i32) {
 
   let value = &proc.status.name;
-  mvaddnstr(position, COLUMNS[0].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 1, COLUMNS[0].position, value, COLUMNS[0].width);
 
   let value = &proc.pid.to_string();
-  mvaddnstr(position, COLUMNS[1].position, value, COLUMNS[1].width);
+  mvaddnstr(position + 1, COLUMNS[1].position, value, COLUMNS[1].width);
 
   let value = &humanize(proc.status.vm_rss);
-  mvaddnstr(position, COLUMNS[2].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 1, COLUMNS[2].position, value, COLUMNS[0].width);
 
   let value = &humanize(proc.status.vm_swap);
-  mvaddnstr(position, COLUMNS[3].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 1, COLUMNS[3].position, value, COLUMNS[0].width);
 
   let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
-  mvaddnstr(position, COLUMNS[4].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 1, COLUMNS[4].position, value, COLUMNS[0].width);
 }
 
 pub fn clear() {
