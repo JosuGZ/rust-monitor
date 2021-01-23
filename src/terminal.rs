@@ -82,13 +82,17 @@ pub fn print_header(selected_col: usize) {
   attroff(COLOR_PAIR(1));
 }
 
-pub fn print_line(proc: &Proc, position: i32) {
+pub fn print_line(proc: &Proc, position: i32, is_group: bool) {
 
   let value = &proc.status.name;
   mvaddnstr(position + 1, COLUMNS[0].position, value, COLUMNS[0].width);
 
-  let value = &proc.pid.to_string();
-  mvaddnstr(position + 1, COLUMNS[1].position, value, COLUMNS[1].width);
+  if !is_group {
+    let value = &proc.pid.to_string();
+    mvaddnstr(position + 1, COLUMNS[1].position, value, COLUMNS[1].width);
+  } else {
+    mvaddnstr(position + 1, COLUMNS[1].position, "group", COLUMNS[1].width);
+  }
 
   let value = &humanize(proc.status.vm_rss);
   mvaddnstr(position + 1, COLUMNS[2].position, value, COLUMNS[0].width);

@@ -103,7 +103,7 @@ fn do_reading(
   procs_vec.sort_by(SORT_FUNCTIONS[sort_function_index]);
 
   for (i, proc) in procs_vec.iter().enumerate() {
-    terminal::print_line(&proc, i as i32 + 1);
+    terminal::print_line(&proc, i as i32 + 1, group);
   }
 
   Result::Ok(())
