@@ -15,11 +15,16 @@ pub fn humanize(mut value: u64) -> String {
   }
 
   let mut result = "".to_string();
-  let decimal = rest / 1024_f32;
-  result = result + &value.to_string();
-  if value < 10 && decimal >= 0.1_f32 && decimal < 1_f32 {
-    result += ".";
-    result += &(decimal * 10_f32).floor().to_string();
+  if value == 0 {
+    value = 1;
+    result = result + &value.to_string();
+  } else {
+    let decimal = rest / 1024_f32;
+    result = result + &value.to_string();
+    if value < 10 && decimal >= 0.1_f32 && decimal < 1_f32 {
+      result += ".";
+      result += &(decimal * 10_f32).floor().to_string();
+    }
   }
   result = result + &sufix_table[divisions].to_string();
 
@@ -29,6 +34,7 @@ pub fn humanize(mut value: u64) -> String {
 #[test]
 fn humanize_returns_expected_values() {
   assert_eq!("1 B",      humanize(1));
+  assert_eq!("1 KiB",    humanize(1023));
   assert_eq!("1 KiB",    humanize(1025));
   assert_eq!("1.5 KiB",  humanize(1024 + 512));
   assert_eq!("2 MiB",    humanize(1024 * 1024 * 2));
