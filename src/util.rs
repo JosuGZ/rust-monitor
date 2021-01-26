@@ -6,6 +6,10 @@ pub fn humanize(mut value: u64) -> String {
   let mut f_value: f32 = value as f32;
   let mut rest: f32 = 0_f32;
 
+  if value  == 0 {
+    return "0 B".to_string();
+  }
+
   while value > 999 && divisions + 1 < sufix_table.len() {
     divisions = divisions + 1;
     let new_f_value = f_value / 1024_f32;
@@ -33,6 +37,7 @@ pub fn humanize(mut value: u64) -> String {
 
 #[test]
 fn humanize_returns_expected_values() {
+  assert_eq!("0 B",      humanize(0));
   assert_eq!("1 B",      humanize(1));
   assert_eq!("1 KiB",    humanize(1023));
   assert_eq!("1 KiB",    humanize(1025));
