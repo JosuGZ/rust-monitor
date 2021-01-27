@@ -9,6 +9,7 @@ use std::str::FromStr;
 use super::proc::Status;
 use super::proc::Proc;
 use super::proc::Uptime;
+use super::proc::MemInfo;
 
 #[cfg(test)]
 static STATUS_EXAMPLE_1: &str = "Name:	kworker/0:0-events
@@ -382,4 +383,69 @@ pub fn get_uptime() -> Uptime {
   let uptime_path = Path::new("/proc/uptime");
   let uptime = read_to_string(uptime_path).unwrap();
   return parse_uptime(&uptime);
+}
+
+fn parse_mem_info(mem_info_str: &str) -> MemInfo {
+  let mut mem_info = MemInfo {
+    mem_total: 0,
+    mem_free: 0,
+    mem_available: 0,
+    swap_total: 0,
+    swap_free: 0
+  };
+
+  let lines = mem_info_str.split("\n");
+
+  for line in lines {
+    let mut parts = line.split_whitespace();
+
+    let key = parts.next();
+    let value_str = parts.next();
+
+    match (key, value_str) {
+      (Some(key), Some(value_str)) => {
+        let value = u64::from_str(value_str);
+
+        match key {
+          "MemTotal:" => mem_info.mem_total = value.unwrap() * 1024,
+          "MemFree:" => mem_info.mem_free = value.unwrap() * 1024,
+          "MemAvailable:" => mem_info.mem_available = value.unwrap() * 1024,
+          "SwapTotal:" => mem_info.swap_total = value.unwrap() * 1024,
+          "SwapFree:" => mem_info.swap_free = value.unwrap() * 1024,
+          _ => {}
+        }
+      },
+      _ => {}
+    }
+  }
+
+  return mem_info;
+}
+
+#[cfg(test)]
+static MEM_INFO_EXAMPLE_1: &str = "MemTotal:              6 kB
+MemFree:               2 kB
+MemAvailable:          3 kB
+SwapTotal:          1024 kB
+SwapFree:            512 kB";
+
+#[test]
+fn parse_mem_info_1() {
+  let expected = MemInfo {
+    mem_total: 6 * 1024,
+    mem_free: 2* 1024,
+    mem_available: 3 * 1024,
+    swap_total: 1024 * 1024,
+    swap_free: 512 * 1024
+  };
+
+  let uptime = parse_mem_info(MEM_INFO_EXAMPLE_1);
+
+  assert_eq!(expected, uptime);
+}
+
+pub fn get_mem_info() -> MemInfo {
+  let uptime_path = Path::new("/proc/meminfo");
+  let mem_info = read_to_string(uptime_path).unwrap();
+  return parse_mem_info(&mem_info);
 }

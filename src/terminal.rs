@@ -6,6 +6,7 @@ use ncurses::*;
 use super::util::humanize;
 use super::proc::Proc;
 use super::proc::Uptime;
+use super::proc::MemInfo;
 
 pub enum Key {
   KeyUp,
@@ -68,15 +69,25 @@ pub fn print_uptime(uptime: &Uptime) {
   mvaddnstr(0, 8, &formated, 20);
 }
 
+pub fn print_mem_info(mem_info: &MemInfo) {
+  let formatted = format!(
+    "Memory - Total: {} Free: {} Available: {}",
+    humanize(mem_info.mem_total),
+    humanize(mem_info.mem_free),
+    humanize(mem_info.mem_available)
+  );
+  mvaddnstr(1, 0, &formatted, 80);
+}
+
 pub fn print_header(selected_col: usize) {
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   attron(COLOR_PAIR(1));
 
   for i in 0..COLUMNS.len() {
     let column = &COLUMNS[i];
-    mvaddnstr(1, column.position, column.name, column.width + 1);
+    mvaddnstr(2, column.position, column.name, column.width + 1);
     if i == selected_col + 1 {
-      mvaddnstr(1, column.position -1, ">", 1);
+      mvaddnstr(2, column.position -1, ">", 1);
     }
   }
   attroff(COLOR_PAIR(1));
@@ -85,23 +96,23 @@ pub fn print_header(selected_col: usize) {
 pub fn print_line(proc: &Proc, position: i32, is_group: bool) {
 
   let value = &proc.status.name;
-  mvaddnstr(position + 1, COLUMNS[0].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 2, COLUMNS[0].position, value, COLUMNS[0].width);
 
   if !is_group {
     let value = &proc.pid.to_string();
-    mvaddnstr(position + 1, COLUMNS[1].position, value, COLUMNS[1].width);
+    mvaddnstr(position + 2, COLUMNS[1].position, value, COLUMNS[1].width);
   } else {
-    mvaddnstr(position + 1, COLUMNS[1].position, "group", COLUMNS[1].width);
+    mvaddnstr(position + 2, COLUMNS[1].position, "group", COLUMNS[1].width);
   }
 
   let value = &humanize(proc.status.vm_rss);
-  mvaddnstr(position + 1, COLUMNS[2].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 2, COLUMNS[2].position, value, COLUMNS[0].width);
 
   let value = &humanize(proc.status.vm_swap);
-  mvaddnstr(position + 1, COLUMNS[3].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 2, COLUMNS[3].position, value, COLUMNS[0].width);
 
   let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
-  mvaddnstr(position + 1, COLUMNS[4].position, value, COLUMNS[0].width);
+  mvaddnstr(position + 2, COLUMNS[4].position, value, COLUMNS[0].width);
 }
 
 pub fn clear() {

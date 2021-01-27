@@ -33,3 +33,12 @@ pub struct Uptime {
   pub up: f64,
   pub idle: f64
 }
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct MemInfo {
+  pub mem_total: u64,
+  pub mem_free: u64,
+  pub mem_available: u64,
+  pub swap_total: u64,
+  pub swap_free: u64
+}
