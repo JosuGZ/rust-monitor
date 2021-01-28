@@ -71,10 +71,11 @@ pub fn print_uptime(uptime: &Uptime) {
 
 pub fn print_mem_info(mem_info: &MemInfo) {
   let formatted = format!(
-    "Memory - Total: {} Free: {} Available: {}",
+    "Memory: [{} / {}] Swap: [{} / {}]",
+    humanize(mem_info.mem_total - mem_info.mem_available),
     humanize(mem_info.mem_total),
-    humanize(mem_info.mem_free),
-    humanize(mem_info.mem_available)
+    humanize(mem_info.swap_total - mem_info.swap_free),
+    humanize(mem_info.swap_total)
   );
   mvaddnstr(1, 0, &formatted, 80);
 }
