@@ -1,6 +1,7 @@
 // mod terminal;
 
 extern crate ncurses;
+extern crate num_cpus;
 
 use ncurses::*;
 use super::util::humanize;
@@ -64,9 +65,14 @@ pub fn print_uptime(uptime: &Uptime) {
   let days_up = hours_up / 24;
   hours_up -= days_up * 24;
 
-  let formated = format!("{} days {:02}:{:02}", days_up, hours_up, minutes_up);
+  let idle_time = (uptime.idle / num_cpus::get() as f64) / uptime.up * 100_f64;
+
+  let formated = format!(
+    "{} days {:02}:{:02} | Idle: {:.1}%",
+    days_up, hours_up, minutes_up, idle_time
+  );
   mvaddnstr(0, 0, "Uptime: ", 20);
-  mvaddnstr(0, 8, &formated, 20);
+  mvaddnstr(0, 8, &formated, 72);
 }
 
 pub fn print_mem_info(mem_info: &MemInfo) {

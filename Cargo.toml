@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 ncurses = "5.99.0"
+num_cpus = "1.13.0"
