@@ -6,7 +6,7 @@ mod terminal;
 use std::fs::read_dir;
 use std::collections::HashMap;
 
-use proc::Proc;
+use proc::*;
 use terminal::Key;
 
 use parsers::get_proc;
@@ -115,10 +115,14 @@ fn main() {
 
   let mut sort_function_index: usize = 3;
   let mut group: bool = false;
+  let mut last_uptime: Uptime = Default::default();
+  let mut uptime: Uptime;
 
   loop {
     terminal::clear();
-    terminal::print_uptime(&get_uptime());
+    uptime = get_uptime();
+    terminal::print_uptime(&uptime, &last_uptime);
+    last_uptime = uptime;
     terminal::print_mem_info(&get_mem_info());
     terminal::print_header(sort_function_index);
     match do_reading(sort_function_index, group) {

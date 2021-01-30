@@ -1,5 +1,7 @@
 // mod proc;
 
+use std::ops;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Proc {
   pub pid: i32,
@@ -28,10 +30,21 @@ pub struct Status {
   pub vm_swap: u64
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct Uptime {
   pub up: f64,
   pub idle: f64
+}
+
+impl ops::Sub<&Uptime> for &Uptime {
+  type Output = Uptime;
+
+  fn sub(self, b: &Uptime) -> Self::Output {
+    return Uptime {
+      up: self.up - b.up,
+      idle: self.idle - b.idle
+    };
+  }
 }
 
 #[derive(Clone, Debug, PartialEq)]

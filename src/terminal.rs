@@ -57,7 +57,7 @@ pub fn init() {
   start_color();
 }
 
-pub fn print_uptime(uptime: &Uptime) {
+pub fn print_uptime(uptime: &Uptime, last_uptime: &Uptime) {
   let seconds_up = uptime.up as i32;
   let mut minutes_up = seconds_up / 60;
   let mut hours_up = minutes_up / 60;
@@ -65,7 +65,9 @@ pub fn print_uptime(uptime: &Uptime) {
   let days_up = hours_up / 24;
   hours_up -= days_up * 24;
 
-  let idle_time = (uptime.idle / num_cpus::get() as f64) / uptime.up * 100_f64;
+  let partial_uptime = uptime - last_uptime;
+  let cpus = num_cpus::get() as f64;
+  let idle_time = (partial_uptime.idle / cpus) / partial_uptime.up * 100_f64;
 
   let formated = format!(
     "{} days {:02}:{:02} | Idle: {:.1}%",
