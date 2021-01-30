@@ -51,7 +51,7 @@ voluntary_ctxt_switches:	127195
 nonvoluntary_ctxt_switches:	5";
 
 #[cfg(test)]
-static STATUS_EXAMPLE_2: &str = "Name:	dropbox
+static STATUS_EXAMPLE_2: &str = "Name:	dropbox 2 3 4
 Umask:	0002
 State:	S (sleeping)
 Tgid:	24104
@@ -126,10 +126,14 @@ fn parse_status(file_content: &str) -> Option<Status> {
   fn get_value_str(name: &str, line: &str) -> Option<String> {
     if line.contains(name) {
       let mut parts = line.split_whitespace();
-      let value_str = match parts.nth(1) {
-        Some(value) =>  value,
+      let mut value_str = match parts.nth(1) {
+        Some(value) =>  value.to_string(),
         _ => return None
       };
+      for part in parts.skip(0) {
+        value_str += " ";
+        value_str += part;
+      }
       return Some(String::from(value_str));
     } else {
       return None
@@ -265,7 +269,7 @@ fn parse_status_1() {
 #[test]
 fn parse_status_2() {
   let expected = Some(Status {
-    name: "dropbox".to_string(),
+    name: "dropbox 2 3 4".to_string(),
     vm_peack: 3393164 * 1024,
     vm_size: 3326428 * 1024,
     vm_lck: 0 * 1024,
