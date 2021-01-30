@@ -95,6 +95,7 @@ fn do_reading(
       let key = proc.status.name.clone();
       group.entry(key).and_modify(|p: &mut Proc| {
         (*p).status.vm_rss = (*p).status.vm_rss + proc.status.vm_rss;
+        (*p).status.vm_swap = (*p).status.vm_swap + proc.status.vm_swap;
       }).or_insert(proc);
     }
 
