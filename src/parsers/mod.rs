@@ -37,7 +37,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
         Some(value) =>  value.to_string(),
         _ => return None
       };
-      for part in parts.skip(0) {
+      for part in parts {
         value_str += " ";
         value_str += part;
       }
