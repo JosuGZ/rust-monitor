@@ -194,6 +194,7 @@ pub fn get_proc(ref entry: DirEntry) -> Option<Proc> {
 
   let proc = Proc {
     pid,
+    count: 1,
     cmdline,
     status
   };

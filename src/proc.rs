@@ -4,6 +4,8 @@ use std::ops;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Proc {
+  /// Number of processes in a group
+  pub count: i32,
   pub pid: i32,
   pub cmdline: String,
   pub status: Status

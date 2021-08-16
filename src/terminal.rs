@@ -88,13 +88,19 @@ pub fn print_mem_info(mem_info: &MemInfo) {
   mvaddnstr(1, 0, &formatted, 80);
 }
 
-pub fn print_header(selected_col: usize) {
+pub fn print_header(group: bool, selected_col: usize) {
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   attron(COLOR_PAIR(1));
 
   for i in 0..COLUMNS.len() {
     let column = &COLUMNS[i];
-    mvaddnstr(2, column.position, column.name, column.width + 1);
+    let mut column_name = column.name;
+
+    if group && i == 1 {
+      column_name = "Count  ";
+    }
+
+    mvaddnstr(2, column.position, column_name, column.width + 1);
     if i == selected_col + 1 {
       mvaddnstr(2, column.position -1, ">", 1);
     }
@@ -111,7 +117,8 @@ pub fn print_line(proc: &Proc, position: i32, is_group: bool) {
     let value = &proc.pid.to_string();
     mvaddnstr(position + 2, COLUMNS[1].position, value, COLUMNS[1].width);
   } else {
-    mvaddnstr(position + 2, COLUMNS[1].position, "group", COLUMNS[1].width);
+    let value = &proc.count.to_string();
+    mvaddnstr(position + 2, COLUMNS[1].position, value, COLUMNS[1].width);
   }
 
   let value = &humanize(proc.status.vm_rss);

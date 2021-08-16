@@ -25,6 +25,18 @@ fn pid_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   }
 }
 
+fn count_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
+  let a_value = a.count;
+  let b_value = b.count;
+  if a_value > b_value {
+    return std::cmp::Ordering::Less;
+  } else if a_value < b_value {
+    return std::cmp::Ordering::Greater;
+  } else {
+    return std::cmp::Ordering::Equal;
+  }
+}
+
 fn rss_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_rss;
   let b_value = b.status.vm_rss;
@@ -70,8 +82,15 @@ static SORT_FUNCTIONS: [SortFunction; 4] = [
   sum_sort_function
 ];
 
+static GROUP_SORT_FUNCTIONS: [SortFunction; 4] = [
+  count_sort_function,
+  rss_sort_function,
+  swap_sort_function,
+  sum_sort_function
+];
+
 fn do_reading(
-  sort_function_index: usize, group: bool
+  sort_function: SortFunction, group: bool
 ) -> Result<(), std::io::Error> {
   let readed = read_dir("/proc")?;
 
@@ -94,6 +113,7 @@ fn do_reading(
     for proc in procs_vec {
       let key = proc.status.name.clone();
       group.entry(key).and_modify(|p: &mut Proc| {
+        (*p).count += 1;
         (*p).status.vm_rss = (*p).status.vm_rss + proc.status.vm_rss;
         (*p).status.vm_swap = (*p).status.vm_swap + proc.status.vm_swap;
       }).or_insert(proc);
@@ -102,7 +122,7 @@ fn do_reading(
     procs_vec = group.into_iter().map(|e| e.1).collect();
   }
 
-  procs_vec.sort_by(SORT_FUNCTIONS[sort_function_index]);
+  procs_vec.sort_by(sort_function);
 
   for (i, proc) in procs_vec.iter().enumerate() {
     terminal::print_line(&proc, i as i32 + 1, group);
@@ -120,13 +140,21 @@ fn main() {
   let mut uptime: Uptime;
 
   loop {
+    let sort_functions = {
+      if group {
+        GROUP_SORT_FUNCTIONS
+      } else {
+        SORT_FUNCTIONS
+      }
+    };
+
     terminal::clear();
     uptime = get_uptime();
     terminal::print_uptime(&uptime, &last_uptime);
     last_uptime = uptime;
     terminal::print_mem_info(&get_mem_info());
-    terminal::print_header(sort_function_index);
-    match do_reading(sort_function_index, group) {
+    terminal::print_header(group, sort_function_index);
+    match do_reading(sort_functions[sort_function_index], group) {
       Err(err) => println!("{}", err),
       _ => ()
     }
@@ -137,7 +165,7 @@ fn main() {
       Some(key) => match key {
         Key::KeyRight => {
           sort_function_index = sort_function_index + 1;
-          if sort_function_index >= SORT_FUNCTIONS.len() {
+          if sort_function_index >= sort_functions.len() {
             sort_function_index = 0;
           }
         },
@@ -145,7 +173,7 @@ fn main() {
           if sort_function_index > 0 {
             sort_function_index = sort_function_index - 1;
           } else {
-            sort_function_index = SORT_FUNCTIONS.len() - 1;
+            sort_function_index = sort_functions.len() - 1;
           }
         },
         Key::KeyGroup => group = !group,
