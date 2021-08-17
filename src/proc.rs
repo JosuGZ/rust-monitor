@@ -2,6 +2,7 @@
 
 use std::ops;
 
+/// Stores either a process, or an aggregation of a group of processes
 #[derive(Clone, Debug, PartialEq)]
 pub struct Proc {
   /// Number of processes in a group
@@ -11,7 +12,6 @@ pub struct Proc {
   pub status: Status
 }
 
-// TODO: Eliminado "Copy"
 #[derive(Clone, Debug, PartialEq)]
 pub struct Status {
   pub name: String,
