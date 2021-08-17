@@ -13,64 +13,45 @@ use parsers::get_proc;
 use parsers::get_uptime;
 use parsers::get_mem_info;
 
-fn pid_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
-  let a_value = a.pid;
-  let b_value = b.pid;
-  if a_value > b_value {
+/// Returns an Ordering between 2 elements
+fn comp<T: std::cmp::Ord>(a: &T, b: &T) -> std::cmp::Ordering {
+  if a > b {
     return std::cmp::Ordering::Less;
-  } else if a_value < b_value {
+  } else if a < b {
     return std::cmp::Ordering::Greater;
   } else {
     return std::cmp::Ordering::Equal;
   }
+}
+
+fn pid_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
+  let a_value = a.pid;
+  let b_value = b.pid;
+  return comp(&a_value, &b_value);
 }
 
 fn count_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.count;
   let b_value = b.count;
-  if a_value > b_value {
-    return std::cmp::Ordering::Less;
-  } else if a_value < b_value {
-    return std::cmp::Ordering::Greater;
-  } else {
-    return std::cmp::Ordering::Equal;
-  }
+  return comp(&a_value, &b_value);
 }
 
 fn rss_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_rss;
   let b_value = b.status.vm_rss;
-  if a_value > b_value {
-    return std::cmp::Ordering::Less;
-  } else if a_value < b_value {
-    return std::cmp::Ordering::Greater;
-  } else {
-    return std::cmp::Ordering::Equal;
-  }
+  return comp(&a_value, &b_value);
 }
 
 fn swap_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_swap;
   let b_value = b.status.vm_swap;
-  if a_value > b_value {
-    return std::cmp::Ordering::Less;
-  } else if a_value < b_value {
-    return std::cmp::Ordering::Greater;
-  } else {
-    return std::cmp::Ordering::Equal;
-  }
+  return comp(&a_value, &b_value);
 }
 
 fn sum_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_rss + a.status.vm_swap;
   let b_value = b.status.vm_rss + b.status.vm_swap;
-  if a_value > b_value {
-    return std::cmp::Ordering::Less;
-  } else if a_value < b_value {
-    return std::cmp::Ordering::Greater;
-  } else {
-    return std::cmp::Ordering::Equal;
-  }
+  return comp(&a_value, &b_value);
 }
 
 type SortFunction = fn (a: &proc::Proc, b: &proc::Proc) -> std::cmp::Ordering;
