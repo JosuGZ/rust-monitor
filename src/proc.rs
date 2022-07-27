@@ -42,10 +42,10 @@ impl ops::Sub<&Uptime> for &Uptime {
   type Output = Uptime;
 
   fn sub(self, b: &Uptime) -> Self::Output {
-    return Uptime {
+    Uptime {
       up: self.up - b.up,
       idle: self.idle - b.idle
-    };
+    }
   }
 }
 

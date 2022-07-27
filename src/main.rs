@@ -1,3 +1,7 @@
+#![allow(clippy::erasing_op)]
+#![allow(clippy::all)]
+#![warn(clippy::needless_return)]
+
 mod util;
 mod proc;
 mod parsers;
@@ -16,42 +20,42 @@ use parsers::get_mem_info;
 /// Returns an Ordering between 2 elements
 fn comp<T: std::cmp::Ord>(a: &T, b: &T) -> std::cmp::Ordering {
   if a > b {
-    return std::cmp::Ordering::Less;
+    std::cmp::Ordering::Less
   } else if a < b {
-    return std::cmp::Ordering::Greater;
+    std::cmp::Ordering::Greater
   } else {
-    return std::cmp::Ordering::Equal;
+    std::cmp::Ordering::Equal
   }
 }
 
 fn pid_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.pid;
   let b_value = b.pid;
-  return comp(&a_value, &b_value);
+  comp(&a_value, &b_value)
 }
 
 fn count_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.count;
   let b_value = b.count;
-  return comp(&a_value, &b_value);
+  comp(&a_value, &b_value)
 }
 
 fn rss_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_rss;
   let b_value = b.status.vm_rss;
-  return comp(&a_value, &b_value);
+  comp(&a_value, &b_value)
 }
 
 fn swap_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_swap;
   let b_value = b.status.vm_swap;
-  return comp(&a_value, &b_value);
+  comp(&a_value, &b_value)
 }
 
 fn sum_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_rss + a.status.vm_swap;
   let b_value = b.status.vm_rss + b.status.vm_swap;
-  return comp(&a_value, &b_value);
+  comp(&a_value, &b_value)
 }
 
 type SortFunction = fn (a: &proc::Proc, b: &proc::Proc) -> std::cmp::Ordering;

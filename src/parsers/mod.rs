@@ -16,35 +16,33 @@ use super::proc::MemInfo;
 
 fn parse_status(file_content: &str) -> Option<Status> {
   fn get_value(name: &str, line: &str) -> Option<u64> {
-    if line.contains(name) {
-      let mut parts = line.split_whitespace();
-      let value = match parts.nth(1) {
-        Some(value) => value,
-        _ => return None
-      };
-      match u64::from_str_radix(value, 10) {
-        Ok(value) => return Some(value * 1024), // Assuming kB
-        _ => return None
-      };
-    } else {
-      return None
+    if !line.contains(name) { return None; }
+
+    let mut parts = line.split_whitespace();
+    let value = match parts.nth(1) {
+      Some(value) => value,
+      _ => return None
     };
+
+    match u64::from_str_radix(value, 10) {
+      Ok(value) => Some(value * 1024), // Assuming kB
+      _ => None
+    }
   }
   fn get_value_str(name: &str, line: &str) -> Option<String> {
-    if line.contains(name) {
-      let mut parts = line.split_whitespace();
-      let mut value_str = match parts.nth(1) {
-        Some(value) =>  value.to_string(),
-        _ => return None
-      };
-      for part in parts {
-        value_str += " ";
-        value_str += part;
-      }
-      return Some(String::from(value_str));
-    } else {
-      return None
+    if !line.contains(name) { return None; }
+
+    let mut parts = line.split_whitespace();
+    let mut value_str = match parts.nth(1) {
+      Some(value) =>  value.to_string(),
+      _ => return None
     };
+    for part in parts {
+      value_str += " ";
+      value_str += part;
+    }
+
+    Some(String::from(value_str))
   }
 
   let mut lines = file_content.split("\n");
@@ -144,7 +142,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
     vm_swap
   };
 
-  return Some(result);
+  Some(result)
 }
 
 pub fn get_proc(ref entry: DirEntry) -> Option<Proc> {
@@ -200,7 +198,7 @@ pub fn get_proc(ref entry: DirEntry) -> Option<Proc> {
   };
 
   // Here we are sure we have a number, now we check if it is a process
-  return Some(proc);
+  Some(proc)
 }
 
 fn parse_uptime(uptime: &str) -> Uptime {
@@ -212,16 +210,16 @@ fn parse_uptime(uptime: &str) -> Uptime {
   let idle_str = bits.next().unwrap();
   let idle = f64::from_str(idle_str).unwrap();
 
-  return Uptime {
+  Uptime {
     up: up,
     idle: idle
-  };
+  }
 }
 
 pub fn get_uptime() -> Uptime {
   let uptime_path = Path::new("/proc/uptime");
   let uptime = read_to_string(uptime_path).unwrap();
-  return parse_uptime(&uptime);
+  parse_uptime(&uptime)
 }
 
 fn parse_mem_info(mem_info_str: &str) -> MemInfo {
@@ -258,11 +256,11 @@ fn parse_mem_info(mem_info_str: &str) -> MemInfo {
     }
   }
 
-  return mem_info;
+  mem_info
 }
 
 pub fn get_mem_info() -> MemInfo {
   let uptime_path = Path::new("/proc/meminfo");
   let mem_info = read_to_string(uptime_path).unwrap();
-  return parse_mem_info(&mem_info);
+  parse_mem_info(&mem_info)
 }

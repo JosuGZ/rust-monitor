@@ -21,7 +21,7 @@ pub enum Key {
 
 impl Key {
   fn from_i32(key: i32) -> Option<Key> {
-    return match key {
+    match key {
       ncurses::KEY_UP => Some(Key::KeyUp),
       ncurses::KEY_DOWN => Some(Key::KeyDown),
       ncurses::KEY_LEFT => Some(Key::KeyLeft),
@@ -30,7 +30,7 @@ impl Key {
       27 => Some(Key::KeyEsc),
       103 => Some(Key::KeyGroup), // 'g'
       _ => None
-    };
+    }
   }
 }
 
@@ -142,7 +142,7 @@ pub fn refresh() {
 pub fn wait_key() -> Option<Key> { // TODO: Change return
   let result = getch();
 
-  return Key::from_i32(result);
+  Key::from_i32(result)
 }
 
 pub fn deinit() {

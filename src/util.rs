@@ -32,7 +32,7 @@ pub fn humanize(mut value: u64) -> String {
   }
   result = result + &sufix_table[divisions].to_string();
 
-  return result;
+  result
 }
 
 #[test]
