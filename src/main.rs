@@ -1,8 +1,6 @@
 #![allow(clippy::erasing_op)]
 #![allow(clippy::all)]
-#![warn(clippy::assign_op_pattern)]
-#![warn(clippy::needless_borrow)]
-#![warn(clippy::single_match)]
+#![warn(clippy::enum_variant_names)]
 
 mod util;
 mod proc;
@@ -147,21 +145,21 @@ fn main() {
 
     let key_option = terminal::wait_key();
     match key_option {
-      Some(Key::KeyRight) => {
+      Some(Key::Right) => {
         sort_function_index += 1;
         if sort_function_index >= sort_functions.len() {
           sort_function_index = 0;
         }
       },
-      Some(Key::KeyLeft) => {
+      Some(Key::Left) => {
         if sort_function_index > 0 {
           sort_function_index -= 1;
         } else {
           sort_function_index = sort_functions.len() - 1;
         }
       },
-      Some(Key::KeyGroup) => group = !group,
-      Some(Key::KeyEsc) => break,
+      Some(Key::Group) => group = !group,
+      Some(Key::Esc) => break,
       _ => ()
     }
   }

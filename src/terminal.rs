@@ -10,25 +10,25 @@ use super::proc::Uptime;
 use super::proc::MemInfo;
 
 pub enum Key {
-  KeyUp,
-  KeyDown,
-  KeyLeft,
-  KeyRight,
-  KeyEnter,
-  KeyEsc,
-  KeyGroup
+  Up,
+  Down,
+  Left,
+  Right,
+  Enter,
+  Esc,
+  Group
 }
 
 impl Key {
   fn from_i32(key: i32) -> Option<Key> {
     match key {
-      ncurses::KEY_UP => Some(Key::KeyUp),
-      ncurses::KEY_DOWN => Some(Key::KeyDown),
-      ncurses::KEY_LEFT => Some(Key::KeyLeft),
-      ncurses::KEY_RIGHT => Some(Key::KeyRight),
-      ncurses::KEY_ENTER => Some(Key::KeyEnter),
-      27 => Some(Key::KeyEsc),
-      103 => Some(Key::KeyGroup), // 'g'
+      ncurses::KEY_UP => Some(Key::Up),
+      ncurses::KEY_DOWN => Some(Key::Down),
+      ncurses::KEY_LEFT => Some(Key::Left),
+      ncurses::KEY_RIGHT => Some(Key::Right),
+      ncurses::KEY_ENTER => Some(Key::Enter),
+      27 => Some(Key::Esc),
+      103 => Some(Key::Group), // 'g'
       _ => None
     }
   }
