@@ -30,7 +30,7 @@ pub fn humanize(mut value: u64) -> String {
       result += &(decimal * 10_f32).floor().to_string();
     }
   }
-  result = result + &sufix_table[divisions].to_string();
+  result += sufix_table[divisions];
 
   result
 }

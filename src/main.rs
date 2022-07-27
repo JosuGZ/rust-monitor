@@ -1,6 +1,7 @@
 #![allow(clippy::erasing_op)]
-#![allow(clippy::all)]
-#![warn(clippy::enum_variant_names)]
+#![allow(clippy::manual_range_contains)] // To allow or not to allow...
+#![allow(clippy::derive_partial_eq_without_eq)] // To allow or not to allow...
+#![allow(clippy::comparison_chain)] // To allow or not to allow...
 
 mod util;
 mod proc;
@@ -80,15 +81,9 @@ fn do_reading(
   let readed = read_dir("/proc")?;
 
   let procs = readed.enumerate().filter(|val| {
-    match val.1 {
-      Ok(_) => true,
-      _ => false
-    }
-  }).map(|b| get_proc(b.1.unwrap())).filter(|val| {
-    match val {
-      Some(_) => true,
-      _ => false
-    }
+    matches!(val.1, Ok(_))
+  }).map(|b| get_proc(&b.1.unwrap())).filter(|val| {
+    matches!(val, Some(_))
   }).map(|val| val.unwrap());
 
   let mut procs_vec: Vec<Proc> = procs.collect();
@@ -98,9 +93,9 @@ fn do_reading(
     for proc in procs_vec {
       let key = proc.status.name.clone();
       group.entry(key).and_modify(|p: &mut Proc| {
-        (*p).count += 1;
-        (*p).status.vm_rss += proc.status.vm_rss;
-        (*p).status.vm_swap += proc.status.vm_swap;
+        p.count += 1;
+        p.status.vm_rss += proc.status.vm_rss;
+        p.status.vm_swap += proc.status.vm_swap;
       }).or_insert(proc);
     }
 

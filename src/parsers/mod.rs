@@ -24,7 +24,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
       _ => return None
     };
 
-    match u64::from_str_radix(value, 10) {
+    match u64::from_str(value) {
       Ok(value) => Some(value * 1024), // Assuming kB
       _ => None
     }
@@ -42,10 +42,10 @@ fn parse_status(file_content: &str) -> Option<Status> {
       value_str += part;
     }
 
-    Some(String::from(value_str))
+    Some(value_str)
   }
 
-  let mut lines = file_content.split("\n");
+  let mut lines = file_content.split('\n');
 
   let name;
   let mut vm_peack = 0;
@@ -65,10 +65,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
   let mut vm_swap = 0;
 
 
-  let first_line = match lines.next() {
-    Some(line) => line,
-    None => ""
-  };
+  let first_line = lines.next().unwrap_or("");
   if let Some(value_str) = get_value_str("Name:", first_line) {
     name = value_str;
   } else {
@@ -145,7 +142,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
   Some(result)
 }
 
-pub fn get_proc(ref entry: DirEntry) -> Option<Proc> {
+pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
 
   let name = match entry.file_name().into_string() {
     Ok(s) => s,
@@ -165,7 +162,7 @@ pub fn get_proc(ref entry: DirEntry) -> Option<Proc> {
   //println!("Opening {}...", cmd_line_path);
   if let Ok(cmdline_ok) = cmdline_result {
     cmdline = cmdline_ok;
-  } else if let Err(_) = cmdline_result {
+  } else if cmdline_result.is_err() {
     //println!("{:?}", e);
     return None;
   } else {
@@ -210,10 +207,7 @@ fn parse_uptime(uptime: &str) -> Uptime {
   let idle_str = bits.next().unwrap();
   let idle = f64::from_str(idle_str).unwrap();
 
-  Uptime {
-    up: up,
-    idle: idle
-  }
+  Uptime { up, idle }
 }
 
 pub fn get_uptime() -> Uptime {
@@ -231,7 +225,7 @@ fn parse_mem_info(mem_info_str: &str) -> MemInfo {
     swap_free: 0
   };
 
-  let lines = mem_info_str.split("\n");
+  let lines = mem_info_str.split('\n');
 
   for line in lines {
     let mut parts = line.split_whitespace();

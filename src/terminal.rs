@@ -92,8 +92,7 @@ pub fn print_header(group: bool, selected_col: usize) {
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   attron(COLOR_PAIR(1));
 
-  for i in 0..COLUMNS.len() {
-    let column = &COLUMNS[i];
+  for (i, column) in COLUMNS.iter().enumerate() {
     let mut column_name = column.name;
 
     if group && i == 1 {
