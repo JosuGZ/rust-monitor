@@ -1,6 +1,8 @@
 #![allow(clippy::erasing_op)]
 #![allow(clippy::all)]
-#![warn(clippy::needless_return)]
+#![warn(clippy::assign_op_pattern)]
+#![warn(clippy::needless_borrow)]
+#![warn(clippy::single_match)]
 
 mod util;
 mod proc;
@@ -99,8 +101,8 @@ fn do_reading(
       let key = proc.status.name.clone();
       group.entry(key).and_modify(|p: &mut Proc| {
         (*p).count += 1;
-        (*p).status.vm_rss = (*p).status.vm_rss + proc.status.vm_rss;
-        (*p).status.vm_swap = (*p).status.vm_swap + proc.status.vm_swap;
+        (*p).status.vm_rss += proc.status.vm_rss;
+        (*p).status.vm_swap += proc.status.vm_swap;
       }).or_insert(proc);
     }
 
@@ -110,7 +112,7 @@ fn do_reading(
   procs_vec.sort_by(sort_function);
 
   for (i, proc) in procs_vec.iter().enumerate() {
-    terminal::print_line(&proc, i as i32 + 1, group);
+    terminal::print_line(proc, i as i32 + 1, group);
   }
 
   Result::Ok(())
@@ -139,32 +141,27 @@ fn main() {
     last_uptime = uptime;
     terminal::print_mem_info(&get_mem_info());
     terminal::print_header(group, sort_function_index);
-    match do_reading(sort_functions[sort_function_index], group) {
-      Err(err) => println!("{}", err),
-      _ => ()
-    }
+    let result = do_reading(sort_functions[sort_function_index], group);
+    if let Err(err) = result { println!("{}", err); }
     terminal::refresh();
 
     let key_option = terminal::wait_key();
     match key_option {
-      Some(key) => match key {
-        Key::KeyRight => {
-          sort_function_index = sort_function_index + 1;
-          if sort_function_index >= sort_functions.len() {
-            sort_function_index = 0;
-          }
-        },
-        Key::KeyLeft => {
-          if sort_function_index > 0 {
-            sort_function_index = sort_function_index - 1;
-          } else {
-            sort_function_index = sort_functions.len() - 1;
-          }
-        },
-        Key::KeyGroup => group = !group,
-        Key::KeyEsc => break,
-        _ => ()
+      Some(Key::KeyRight) => {
+        sort_function_index += 1;
+        if sort_function_index >= sort_functions.len() {
+          sort_function_index = 0;
+        }
       },
+      Some(Key::KeyLeft) => {
+        if sort_function_index > 0 {
+          sort_function_index -= 1;
+        } else {
+          sort_function_index = sort_functions.len() - 1;
+        }
+      },
+      Some(Key::KeyGroup) => group = !group,
+      Some(Key::KeyEsc) => break,
       _ => ()
     }
   }

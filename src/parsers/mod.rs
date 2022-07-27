@@ -237,21 +237,16 @@ fn parse_mem_info(mem_info_str: &str) -> MemInfo {
     let mut parts = line.split_whitespace();
 
     let key = parts.next();
-    let value_str = parts.next();
+    let value = parts.next().map(|value_str| {
+      u64::from_str(value_str)
+    });
 
-    match (key, value_str) {
-      (Some(key), Some(value_str)) => {
-        let value = u64::from_str(value_str);
-
-        match key {
-          "MemTotal:" => mem_info.mem_total = value.unwrap() * 1024,
-          "MemFree:" => mem_info.mem_free = value.unwrap() * 1024,
-          "MemAvailable:" => mem_info.mem_available = value.unwrap() * 1024,
-          "SwapTotal:" => mem_info.swap_total = value.unwrap() * 1024,
-          "SwapFree:" => mem_info.swap_free = value.unwrap() * 1024,
-          _ => {}
-        }
-      },
+    match (key, value) {
+      (Some("MemTotal:"), Some(value)) => mem_info.mem_total = value.unwrap() * 1024,
+      (Some("MemFree:"), Some(value)) => mem_info.mem_free = value.unwrap() * 1024,
+      (Some("MemAvailable:"), Some(value)) => mem_info.mem_available = value.unwrap() * 1024,
+      (Some("SwapTotal:"), Some(value)) => mem_info.swap_total = value.unwrap() * 1024,
+      (Some("SwapFree:"), Some(value)) => mem_info.swap_free = value.unwrap() * 1024,
       _ => {}
     }
   }

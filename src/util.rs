@@ -11,7 +11,7 @@ pub fn humanize(mut value: u64) -> String {
   }
 
   while value > 999 && divisions + 1 < sufix_table.len() {
-    divisions = divisions + 1;
+    divisions += 1;
     let new_f_value = f_value / 1024_f32;
     value = new_f_value.floor() as u64;
     rest = f_value - value as f32 * 1024_f32;
