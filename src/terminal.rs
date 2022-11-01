@@ -49,7 +49,7 @@ static COLUMNS: [Column; 5] = [
 ];
 
 pub struct Terminal {
-
+  line: i32
 }
 
 impl Terminal {
@@ -62,7 +62,9 @@ impl Terminal {
     timeout(2000);
     start_color();
 
-    Terminal {}
+    Terminal {
+      line: 0
+    }
   }
 
   pub fn print_uptime(&mut self, uptime: &Uptime, last_uptime: &Uptime) {
@@ -81,8 +83,9 @@ impl Terminal {
       "{} days {:02}:{:02} | Idle: {:.1}%",
       days_up, hours_up, minutes_up, idle_time
     );
-    mvaddnstr(0, 0, "Uptime: ", 20);
-    mvaddnstr(0, 8, &formated, 72);
+    mvaddnstr(self.line, 0, "Uptime: ", 20);
+    mvaddnstr(self.line, 8, &formated, 72);
+    self.line += 1;
   }
 
   pub fn print_mem_info(&mut self, mem_info: &MemInfo) {
@@ -93,7 +96,8 @@ impl Terminal {
       humanize(mem_info.swap_total - mem_info.swap_free),
       humanize(mem_info.swap_total)
     );
-    mvaddnstr(1, 0, &formatted, 80);
+    mvaddnstr(self.line, 0, &formatted, 80);
+    self.line += 1;
   }
 
   pub fn print_header(&mut self, group: bool, selected_col: usize) {
@@ -107,38 +111,43 @@ impl Terminal {
         column_name = "Count  ";
       }
 
-      mvaddnstr(2, column.position, column_name, column.width + 1);
+      mvaddnstr(self.line, column.position, column_name, column.width + 1);
       if i == selected_col + 1 {
-        mvaddnstr(2, column.position -1, ">", 1);
+        mvaddnstr(self.line, column.position -1, ">", 1);
       }
     }
     attroff(COLOR_PAIR(1));
+    self.line += 1;
   }
 
-  pub fn print_line(&mut self, proc: &Proc, position: i32, is_group: bool) {
+  pub fn print_line(&mut self, proc: &Proc, is_group: bool) {
+    let line = self.line;
 
     let value = &proc.status.name;
-    mvaddnstr(position + 2, COLUMNS[0].position, value, COLUMNS[0].width);
+    mvaddnstr(line, COLUMNS[0].position, value, COLUMNS[0].width);
 
     if !is_group {
       let value = &proc.pid.to_string();
-      mvaddnstr(position + 2, COLUMNS[1].position, value, COLUMNS[1].width);
+      mvaddnstr(line, COLUMNS[1].position, value, COLUMNS[1].width);
     } else {
       let value = &proc.count.to_string();
-      mvaddnstr(position + 2, COLUMNS[1].position, value, COLUMNS[1].width);
+      mvaddnstr(line, COLUMNS[1].position, value, COLUMNS[1].width);
     }
 
     let value = &humanize(proc.status.vm_rss);
-    mvaddnstr(position + 2, COLUMNS[2].position, value, COLUMNS[0].width);
+    mvaddnstr(line, COLUMNS[2].position, value, COLUMNS[0].width);
 
     let value = &humanize(proc.status.vm_swap);
-    mvaddnstr(position + 2, COLUMNS[3].position, value, COLUMNS[0].width);
+    mvaddnstr(line, COLUMNS[3].position, value, COLUMNS[0].width);
 
     let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
-    mvaddnstr(position + 2, COLUMNS[4].position, value, COLUMNS[0].width);
+    mvaddnstr(line, COLUMNS[4].position, value, COLUMNS[0].width);
+
+    self.line += 1;
   }
 
   pub fn clear(&mut self) {
+    self.line = 0;
     ncurses::clear();
   }
 

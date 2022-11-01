@@ -105,8 +105,8 @@ fn do_reading(
 
   procs_vec.sort_by(sort_function);
 
-  for (i, proc) in procs_vec.iter().enumerate() {
-    terminal.print_line(proc, i as i32 + 1, group);
+  for proc in procs_vec.iter() {
+    terminal.print_line(proc, group);
   }
 
   Result::Ok(())
