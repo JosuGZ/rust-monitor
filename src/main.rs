@@ -12,7 +12,7 @@ use std::fs::read_dir;
 use std::collections::HashMap;
 
 use proc::*;
-use terminal::Key;
+use terminal::{Terminal, Key};
 
 use parsers::get_proc;
 use parsers::get_uptime;
@@ -76,6 +76,7 @@ static GROUP_SORT_FUNCTIONS: [SortFunction; 4] = [
 ];
 
 fn do_reading(
+  terminal: &mut Terminal,
   sort_function: SortFunction, group: bool
 ) -> Result<(), std::io::Error> {
   let readed = read_dir("/proc")?;
@@ -105,14 +106,14 @@ fn do_reading(
   procs_vec.sort_by(sort_function);
 
   for (i, proc) in procs_vec.iter().enumerate() {
-    terminal::print_line(proc, i as i32 + 1, group);
+    terminal.print_line(proc, i as i32 + 1, group);
   }
 
   Result::Ok(())
 }
 
 fn main() {
-  terminal::init();
+  let mut terminal = Terminal::init();
 
   let mut sort_function_index: usize = 3;
   let mut group: bool = false;
@@ -128,17 +129,19 @@ fn main() {
       }
     };
 
-    terminal::clear();
+    terminal.clear();
     uptime = get_uptime();
-    terminal::print_uptime(&uptime, &last_uptime);
+    terminal.print_uptime(&uptime, &last_uptime);
     last_uptime = uptime;
-    terminal::print_mem_info(&get_mem_info());
-    terminal::print_header(group, sort_function_index);
-    let result = do_reading(sort_functions[sort_function_index], group);
+    terminal.print_mem_info(&get_mem_info());
+    terminal.print_header(group, sort_function_index);
+    let result = do_reading(
+      &mut terminal, sort_functions[sort_function_index], group
+    );
     if let Err(err) = result { println!("{}", err); }
-    terminal::refresh();
+    terminal.refresh();
 
-    let key_option = terminal::wait_key();
+    let key_option = terminal.wait_key();
     match key_option {
       Some(Key::Right) => {
         sort_function_index += 1;
@@ -159,5 +162,5 @@ fn main() {
     }
   }
 
-  terminal::deinit(); // TODO: Make sure this gets called
+  terminal.deinit(); // TODO: Make sure this gets called
 }
