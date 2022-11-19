@@ -100,6 +100,17 @@ impl Terminal {
     self.line += 1;
   }
 
+  pub fn print_battery(
+    &mut self, percent: i32, rate: f32, hours: i32, minutes: i32
+  ) {
+    let formatted = format!(
+      "Battery: [{}% | {:.3} w | {}:{:02} remaining]",
+      percent, rate, hours, minutes
+    );
+    mvaddnstr(self.line, 0, &formatted, 80);
+    self.line += 1;
+  }
+
   pub fn print_header(&mut self, group: bool, selected_col: usize) {
     init_pair(1, COLOR_BLACK, COLOR_WHITE);
     attron(COLOR_PAIR(1));

@@ -16,3 +16,4 @@ panic = "abort"
 [dependencies]
 ncurses = "5.99.0"
 num_cpus = "1.13.0"
+battery = "0.7.8"

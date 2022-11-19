@@ -7,12 +7,14 @@ mod util;
 mod proc;
 mod parsers;
 mod terminal;
+mod battery;
 
 use std::fs::read_dir;
 use std::collections::HashMap;
 
 use proc::*;
 use terminal::{Terminal, Key};
+use crate::battery::Battery;
 
 use parsers::get_proc;
 use parsers::get_uptime;
@@ -114,6 +116,7 @@ fn do_reading(
 
 fn main() {
   let mut terminal = Terminal::init();
+  let mut battery = Battery::init();
 
   let mut sort_function_index: usize = 3;
   let mut group: bool = false;
@@ -134,6 +137,20 @@ fn main() {
     terminal.print_uptime(&uptime, &last_uptime);
     last_uptime = uptime;
     terminal.print_mem_info(&get_mem_info());
+
+    if let Some(battery) = &mut battery {
+      battery.refresh();
+      if battery.discharging() {
+        let data = battery.get_data();
+        terminal.print_battery(
+          data.percent,
+          data.rate,
+          data.hours,
+          data.minutes
+        );
+      }
+    }
+
     terminal.print_header(group, sort_function_index);
     let result = do_reading(
       &mut terminal, sort_functions[sort_function_index], group
