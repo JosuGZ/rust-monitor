@@ -16,7 +16,7 @@ use super::proc::MemInfo;
 
 fn parse_status(file_content: &str) -> Option<Status> {
   fn get_value(name: &str, line: &str) -> Option<u64> {
-    if !line.contains(name) { return None; }
+    if !line.starts_with(name) { return None; }
 
     let mut parts = line.split_whitespace();
     let value = match parts.nth(1) {
@@ -30,7 +30,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
     }
   }
   fn get_value_str(name: &str, line: &str) -> Option<String> {
-    if !line.contains(name) { return None; }
+    if !line.starts_with(name) { return None; }
 
     let mut parts = line.split_whitespace();
     let mut value_str = match parts.nth(1) {
@@ -76,46 +76,46 @@ fn parse_status(file_content: &str) -> Option<Status> {
     if let Some(value) = get_value("VmPeak:", line) {
       vm_peack = value;
     }
-    if let Some(value) = get_value("VmSize:", line) {
+    else if let Some(value) = get_value("VmSize:", line) {
       vm_size = value;
     }
-    if let Some(value) = get_value("VmLck:", line) {
+    else if let Some(value) = get_value("VmLck:", line) {
       vm_lck = value;
     }
-    if let Some(value) = get_value("VmPin:", line) {
+    else if let Some(value) = get_value("VmPin:", line) {
       vm_pin = value;
     }
-    if let Some(value) = get_value("VmHWM:", line) {
+    else if let Some(value) = get_value("VmHWM:", line) {
       vm_hwm = value;
     }
-    if let Some(value) = get_value("VmRSS:", line) {
+    else if let Some(value) = get_value("VmRSS:", line) {
       vm_rss = value;
     }
-    if let Some(value) = get_value("RssAnon:", line) {
+    else if let Some(value) = get_value("RssAnon:", line) {
       rss_anon = value;
     }
-    if let Some(value) = get_value("RssFile:", line) {
+    else if let Some(value) = get_value("RssFile:", line) {
       rss_file = value;
     }
-    if let Some(value) = get_value("RssShmem:", line) {
+    else if let Some(value) = get_value("RssShmem:", line) {
       rss_shmem = value;
     }
-    if let Some(value) = get_value("VmData:", line) {
+    else if let Some(value) = get_value("VmData:", line) {
       vm_data = value;
     }
-    if let Some(value) = get_value("VmStk:", line) {
+    else if let Some(value) = get_value("VmStk:", line) {
       vm_stk = value;
     }
-    if let Some(value) = get_value("VmExe:", line) {
+    else if let Some(value) = get_value("VmExe:", line) {
       vm_exe = value;
     }
-    if let Some(value) = get_value("VmLib:", line) {
+    else if let Some(value) = get_value("VmLib:", line) {
       vm_lib = value;
     }
-    if let Some(value) = get_value("VmPTE:", line) {
+    else if let Some(value) = get_value("VmPTE:", line) {
       vm_pte = value;
     }
-    if let Some(value) = get_value("VmSwap:", line) {
+    else if let Some(value) = get_value("VmSwap:", line) {
       vm_swap = value;
     }
   }
