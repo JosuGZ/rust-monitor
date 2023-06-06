@@ -14,7 +14,6 @@ use super::proc::Proc;
 use super::proc::Uptime;
 use super::proc::MemInfo;
 
-fn parse_status(file_content: &str) -> Option<Status> {
   fn get_value(name: &str, line: &str) -> Option<u64> {
     if !line.starts_with(name) { return None; }
 
@@ -25,10 +24,11 @@ fn parse_status(file_content: &str) -> Option<Status> {
     };
 
     match u64::from_str(value) {
-      Ok(value) => Some(value * 1024), // Assuming kB
+    Ok(value) => Some(value),
       _ => None
     }
   }
+
   fn get_value_str(name: &str, line: &str) -> Option<String> {
     if !line.starts_with(name) { return None; }
 
@@ -45,6 +45,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
     Some(value_str)
   }
 
+fn parse_status(file_content: &str) -> Option<Status> {
   let mut lines = file_content.split('\n');
 
   let name;
@@ -74,49 +75,49 @@ fn parse_status(file_content: &str) -> Option<Status> {
 
   for line in lines {
     if let Some(value) = get_value("VmPeak:", line) {
-      vm_peack = value;
+      vm_peack = value * 1024;
     }
     else if let Some(value) = get_value("VmSize:", line) {
-      vm_size = value;
+      vm_size = value * 1024;
     }
     else if let Some(value) = get_value("VmLck:", line) {
-      vm_lck = value;
+      vm_lck = value * 1024;
     }
     else if let Some(value) = get_value("VmPin:", line) {
-      vm_pin = value;
+      vm_pin = value * 1024;
     }
     else if let Some(value) = get_value("VmHWM:", line) {
-      vm_hwm = value;
+      vm_hwm = value * 1024;
     }
     else if let Some(value) = get_value("VmRSS:", line) {
-      vm_rss = value;
+      vm_rss = value * 1024;
     }
     else if let Some(value) = get_value("RssAnon:", line) {
-      rss_anon = value;
+      rss_anon = value * 1024;
     }
     else if let Some(value) = get_value("RssFile:", line) {
-      rss_file = value;
+      rss_file = value * 1024;
     }
     else if let Some(value) = get_value("RssShmem:", line) {
-      rss_shmem = value;
+      rss_shmem = value * 1024;
     }
     else if let Some(value) = get_value("VmData:", line) {
-      vm_data = value;
+      vm_data = value * 1024;
     }
     else if let Some(value) = get_value("VmStk:", line) {
-      vm_stk = value;
+      vm_stk = value * 1024;
     }
     else if let Some(value) = get_value("VmExe:", line) {
-      vm_exe = value;
+      vm_exe = value * 1024;
     }
     else if let Some(value) = get_value("VmLib:", line) {
-      vm_lib = value;
+      vm_lib = value * 1024;
     }
     else if let Some(value) = get_value("VmPTE:", line) {
-      vm_pte = value;
+      vm_pte = value * 1024;
     }
     else if let Some(value) = get_value("VmSwap:", line) {
-      vm_swap = value;
+      vm_swap = value * 1024;
     }
   }
 
