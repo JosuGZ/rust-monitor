@@ -57,3 +57,9 @@ pub struct MemInfo {
   pub swap_total: u64,
   pub swap_free: u64
 }
+
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct VmStat {
+  pub pswpin: u64,
+  pub pswpout: u64
+}

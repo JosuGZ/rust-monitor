@@ -13,37 +13,38 @@ use super::proc::Status;
 use super::proc::Proc;
 use super::proc::Uptime;
 use super::proc::MemInfo;
+use super::proc::VmStat;
 
-  fn get_value(name: &str, line: &str) -> Option<u64> {
-    if !line.starts_with(name) { return None; }
+fn get_value(name: &str, line: &str) -> Option<u64> {
+  if !line.starts_with(name) { return None; }
 
-    let mut parts = line.split_whitespace();
-    let value = match parts.nth(1) {
-      Some(value) => value,
-      _ => return None
-    };
+  let mut parts = line.split_whitespace();
+  let value = match parts.nth(1) {
+    Some(value) => value,
+    _ => return None
+  };
 
-    match u64::from_str(value) {
+  match u64::from_str(value) {
     Ok(value) => Some(value),
-      _ => None
-    }
+    _ => None
+  }
+}
+
+fn get_value_str(name: &str, line: &str) -> Option<String> {
+  if !line.starts_with(name) { return None; }
+
+  let mut parts = line.split_whitespace();
+  let mut value_str = match parts.nth(1) {
+    Some(value) =>  value.to_string(),
+    _ => return None
+  };
+  for part in parts {
+    value_str += " ";
+    value_str += part;
   }
 
-  fn get_value_str(name: &str, line: &str) -> Option<String> {
-    if !line.starts_with(name) { return None; }
-
-    let mut parts = line.split_whitespace();
-    let mut value_str = match parts.nth(1) {
-      Some(value) =>  value.to_string(),
-      _ => return None
-    };
-    for part in parts {
-      value_str += " ";
-      value_str += part;
-    }
-
-    Some(value_str)
-  }
+  Some(value_str)
+}
 
 fn parse_status(file_content: &str) -> Option<Status> {
   let mut lines = file_content.split('\n');
@@ -253,4 +254,34 @@ pub fn get_mem_info() -> MemInfo {
   let uptime_path = Path::new("/proc/meminfo");
   let mem_info = read_to_string(uptime_path).unwrap();
   parse_mem_info(&mem_info)
+}
+
+fn parse_vm_stat(file_content: &str) -> VmStat {
+  let lines = file_content.split('\n');
+
+  let mut vmstat = VmStat::default();
+
+  // let first_line = lines.next().unwrap_or("");
+  // if let Some(value_str) = get_value_str("Name:", first_line) {
+  //   name = value_str;
+  // } else {
+  //   return None;
+  // }
+
+  for line in lines {
+    if let Some(value) = get_value("pswpin", line) {
+      vmstat.pswpin = value;
+    }
+    else if let Some(value) = get_value("pswpout", line) {
+      vmstat.pswpout = value;
+    }
+  }
+
+  vmstat
+}
+
+pub fn get_vm_stat() -> VmStat {
+  let vmstat_path = Path::new("/proc/vmstat");
+  let vmstat = read_to_string(vmstat_path).unwrap();
+  parse_vm_stat(&vmstat)
 }

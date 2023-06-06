@@ -189,3 +189,18 @@ fn parse_mem_info_1() {
 
   assert_eq!(expected, uptime);
 }
+
+
+static VMSTAT_EXAMPLE: &str = include_str!("./examples/vmstat.txt");
+
+#[test]
+fn test_parse_vm_stat() {
+  let expected = VmStat {
+    pswpin: 174385139,
+    pswpout: 223337038
+  };
+
+  let vmstat = parse_vm_stat(VMSTAT_EXAMPLE);
+
+  assert_eq!(expected, vmstat);
+}
