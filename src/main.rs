@@ -120,7 +120,7 @@ fn main() {
 
   let mut sort_function_index: usize = 3;
   let mut group: bool = false;
-  let mut last_uptime: Uptime = Default::default();
+  let mut last_uptime = Uptime::default();
   let mut uptime: Uptime;
 
   loop {
