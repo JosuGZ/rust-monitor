@@ -12,6 +12,7 @@ mod battery;
 use std::fs::read_dir;
 use std::collections::HashMap;
 
+use parsers::get_vm_stat;
 use proc::*;
 use terminal::{Terminal, Key};
 use crate::battery::Battery;
@@ -122,6 +123,8 @@ fn main() {
   let mut group: bool = false;
   let mut last_uptime = Uptime::default();
   let mut uptime: Uptime;
+  let mut last_vmstat = get_vm_stat();
+  let mut vmstat: VmStat;
 
   loop {
     let sort_functions = {
@@ -137,6 +140,10 @@ fn main() {
     terminal.print_uptime(&uptime, &last_uptime);
     last_uptime = uptime;
     terminal.print_mem_info(&get_mem_info());
+    vmstat = get_vm_stat();
+    let swap_stats = &vmstat - &last_vmstat;
+    terminal.print_swap_stats(swap_stats.pswpin, swap_stats.pswpout);
+    last_vmstat = vmstat;
 
     if let Some(battery) = &mut battery {
       battery.refresh();

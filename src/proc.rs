@@ -1,6 +1,4 @@
-// mod proc;
-
-use std::ops;
+use std::ops::Sub;
 
 /// Stores either a process, or an aggregation of a group of processes
 #[derive(Clone, Debug, PartialEq)]
@@ -38,7 +36,7 @@ pub struct Uptime {
   pub idle: f64
 }
 
-impl ops::Sub<&Uptime> for &Uptime {
+impl Sub<&Uptime> for &Uptime {
   type Output = Uptime;
 
   fn sub(self, b: &Uptime) -> Self::Output {
@@ -62,4 +60,15 @@ pub struct MemInfo {
 pub struct VmStat {
   pub pswpin: u64,
   pub pswpout: u64
+}
+
+impl Sub<&VmStat> for &VmStat {
+  type Output = VmStat;
+
+  fn sub(self, rhs: &VmStat) -> VmStat {
+    Self::Output {
+      pswpin: self.pswpin - rhs.pswpin,
+      pswpout: self.pswpout - rhs.pswpout
+    }
+  }
 }

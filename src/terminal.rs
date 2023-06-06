@@ -100,6 +100,14 @@ impl Terminal {
     self.line += 1;
   }
 
+  pub fn print_swap_stats(
+    &mut self, pages_in: u64, pages_out: u64
+  ) {
+    let formatted = format!("Swap: pages in: {pages_in} pages_out: {pages_out}");
+    mvaddnstr(self.line, 0, &formatted, 80);
+    self.line += 1;
+  }
+
   pub fn print_battery(
     &mut self, percent: i32, rate: f32, hours: i32, minutes: i32
   ) {
