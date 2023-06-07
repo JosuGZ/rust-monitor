@@ -80,8 +80,7 @@ impl Terminal {
     let idle_time = (partial_uptime.idle / cpus) / partial_uptime.up * 100_f64;
 
     let formated = format!(
-      "{} days {:02}:{:02} | Idle: {:.1}%",
-      days_up, hours_up, minutes_up, idle_time
+      "{days_up} days {hours_up:02}:{minutes_up:02} | Idle: {idle_time:.1}%",
     );
     mvaddnstr(self.line, 0, "Uptime: ", 20);
     mvaddnstr(self.line, 8, &formated, 72);
@@ -112,8 +111,7 @@ impl Terminal {
     &mut self, percent: i32, rate: f32, hours: i32, minutes: i32
   ) {
     let formatted = format!(
-      "Battery: [{}% | {:.3} w | {}:{:02} remaining]",
-      percent, rate, hours, minutes
+      "Battery: [{percent}% | {rate:.3} w | {hours}:{minutes:02} remaining]",
     );
     mvaddnstr(self.line, 0, &formatted, 80);
     self.line += 1;

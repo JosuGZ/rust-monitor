@@ -20,17 +20,10 @@ impl Battery {
     let manager = manager.unwrap();
 
 
-    let batteries = manager.batteries();
-    if batteries.is_err() { return None; }
-    let mut batteries = batteries.unwrap();
+    let mut batteries = manager.batteries().ok()?;
+    let battery = batteries.next()?.ok()?;
 
-    let battery = batteries.next();
-    if battery.is_none() { return None; }
-    let battery = battery.unwrap();
-    if battery.is_err() { return None; }
-    let battery = battery.unwrap();
-
-    Some(Battery { manager,battery })
+    Some(Battery { manager, battery })
   }
 
   pub fn discharging(&self) -> bool {

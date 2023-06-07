@@ -162,7 +162,7 @@ fn main() {
     let result = do_reading(
       &mut terminal, sort_functions[sort_function_index], group
     );
-    if let Err(err) = result { println!("{}", err); }
+    if let Err(err) = result { println!("{err}"); }
     terminal.refresh();
 
     let key_option = terminal.wait_key();

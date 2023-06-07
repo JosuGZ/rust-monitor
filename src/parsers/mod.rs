@@ -177,8 +177,8 @@ pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
   let status_string;
   if let Ok(value) = status_result {
     status_string = value;
-  } else if let Err(e) = status_result {
-    println!("{:?}", e);
+  } else if let Err(error) = status_result {
+    println!("{error:?}");
     return None;
   } else {
     panic!();
