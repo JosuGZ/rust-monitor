@@ -102,7 +102,9 @@ impl Terminal {
   pub fn print_swap_stats(
     &mut self, pages_in: u64, pages_out: u64
   ) {
-    let formatted = format!("Swap: pages in: {pages_in} pages_out: {pages_out}");
+    let pages_in =  humanize(pages_in * 1024 * 4);
+    let pages_out = humanize(pages_out * 1024 * 4);
+    let formatted = format!("Swap: in: {pages_in} out: {pages_out}");
     mvaddnstr(self.line, 0, &formatted, 80);
     self.line += 1;
   }
