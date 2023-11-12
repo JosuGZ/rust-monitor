@@ -146,48 +146,16 @@ fn parse_status(file_content: &str) -> Option<Status> {
 
 pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
 
-  let name = match entry.file_name().into_string() {
-    Ok(s) => s,
-    _ => return None
-  };
+  let name = entry.file_name().into_string().ok()?;
+  let pid = name.parse::<i32>().ok()?;
 
-  let pid = match name.parse::<i32>() {
-    Ok(pid) => pid,
-    _ => return None
-  };
+  let cmd_line_path = format!("/proc/{name}/cmdline");
+  let cmdline = read_to_string(cmd_line_path).ok()?;
 
-  let cmd_line_path = "/proc/".to_string() + &name + "/cmdline";
-  let path = Path::new(&cmd_line_path);
-  let cmdline_result = read_to_string(path);
+  let status_path = format!("/proc/{name}/status");
+  let status_string = read_to_string(status_path).ok()?;
 
-  let cmdline;
-  //println!("Opening {}...", cmd_line_path);
-  if let Ok(cmdline_ok) = cmdline_result {
-    cmdline = cmdline_ok;
-  } else if cmdline_result.is_err() {
-    //println!("{:?}", e);
-    return None;
-  } else {
-    panic!();
-  }
-
-  let status_path = "/proc/".to_string() + &name + "/status";
-  let status_result = read_to_string(status_path);
-
-  let status_string;
-  if let Ok(value) = status_result {
-    status_string = value;
-  } else if let Err(error) = status_result {
-    println!("{error:?}");
-    return None;
-  } else {
-    panic!();
-  }
-
-  let status = match parse_status(&status_string) {
-    Some(status) => status,
-    None => return None
-  };
+  let status = parse_status(&status_string)?;
 
   let proc = Proc {
     pid,
