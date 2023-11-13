@@ -84,11 +84,7 @@ fn do_reading(
 ) -> Result<(), std::io::Error> {
   let readed = read_dir("/proc")?;
 
-  let procs = readed.enumerate().filter(|val| {
-    matches!(val.1, Ok(_))
-  }).map(|b| get_proc(&b.1.unwrap())).filter(|val| {
-    matches!(val, Some(_))
-  }).map(|val| val.unwrap());
+  let procs = readed.filter_map(|read_dir| get_proc(&read_dir.ok()?));
 
   let mut procs_vec: Vec<Proc> = procs.collect();
 
