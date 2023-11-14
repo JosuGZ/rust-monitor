@@ -142,6 +142,7 @@ name = "rust-monitor"
 version = "0.1.0"
 dependencies = [
  "battery",
+ "libc",
  "ncurses",
  "num_cpus",
 ]

@@ -44,6 +44,12 @@ fn count_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   comp(&a_value, &b_value)
 }
 
+fn cpu_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
+  let a_value = a.stat.utime + a.stat.stime;
+  let b_value = b.stat.utime + b.stat.stime;
+  comp(&a_value, &b_value)
+}
+
 fn rss_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   let a_value = a.status.vm_rss;
   let b_value = b.status.vm_rss;
@@ -64,15 +70,17 @@ fn sum_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
 
 type SortFunction = fn (a: &proc::Proc, b: &proc::Proc) -> std::cmp::Ordering;
 
-static SORT_FUNCTIONS: [SortFunction; 4] = [
+static SORT_FUNCTIONS: [SortFunction; 5] = [
   pid_sort_function,
+  cpu_sort_function,
   rss_sort_function,
   swap_sort_function,
   sum_sort_function
 ];
 
-static GROUP_SORT_FUNCTIONS: [SortFunction; 4] = [
+static GROUP_SORT_FUNCTIONS: [SortFunction; 5] = [
   count_sort_function,
+  cpu_sort_function,
   rss_sort_function,
   swap_sort_function,
   sum_sort_function
@@ -93,9 +101,7 @@ fn do_reading(
     for proc in procs_vec {
       let key = proc.status.name.clone();
       group.entry(key).and_modify(|p: &mut Proc| {
-        p.count += 1;
-        p.status.vm_rss += proc.status.vm_rss;
-        p.status.vm_swap += proc.status.vm_swap;
+        *p += proc.clone();
       }).or_insert(proc);
     }
 
@@ -115,7 +121,7 @@ fn main() {
   let mut terminal = Terminal::init();
   let mut battery = Battery::init();
 
-  let mut sort_function_index: usize = 3;
+  let mut sort_function_index: usize = 4;
   let mut group: bool = false;
   let mut last_uptime = Uptime::default();
   let mut uptime: Uptime;

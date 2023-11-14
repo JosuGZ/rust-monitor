@@ -3,6 +3,7 @@
 extern crate ncurses;
 extern crate num_cpus;
 
+use libc::{sysconf, _SC_CLK_TCK}; // TODO: Move out here
 use ncurses::*;
 use super::util::humanize;
 use super::proc::Proc;
@@ -40,16 +41,18 @@ struct Column<'a> {
   position: i32
 }
 
-static COLUMNS: [Column; 5] = [
+static COLUMNS: [Column; 6] = [
   Column { name: "Name                        ", width: 16, position:  0 },
   Column { name: "PID                         ", width:  6, position: 17 },
-  Column { name: "RSS                         ", width:  8, position: 24 },
-  Column { name: "Swap                        ", width:  8, position: 33 },
-  Column { name: "Sum                         ", width:  8, position: 42 }
+  Column { name: "CPU TIME                    ", width: 10, position: 24 },
+  Column { name: "RSS                         ", width:  8, position: 34 },
+  Column { name: "Swap                        ", width:  8, position: 43 },
+  Column { name: "Sum                         ", width:  8, position: 52 }
 ];
 
 pub struct Terminal {
-  line: i32
+  line: i32,
+  sc_clk_tck: u64
 }
 
 impl Terminal {
@@ -62,8 +65,17 @@ impl Terminal {
     timeout(2000);
     start_color();
 
+    let sc_clk_tck = unsafe {
+      let sc_clk_tck = sysconf(_SC_CLK_TCK);
+      if sc_clk_tck > 0 {
+        sc_clk_tck as u64
+      } else {
+        100 // Silent fallback to 100
+      }
+    };
+
     Terminal {
-      line: 0
+      line: 0, sc_clk_tck
     }
   }
 
@@ -155,14 +167,19 @@ impl Terminal {
       mvaddnstr(line, COLUMNS[1].position, value, COLUMNS[1].width);
     }
 
+    let value = proc.stat.utime + proc.stat.stime;
+    let value = value / self.sc_clk_tck;
+    let value = format!("{:5}:{:02}", value / 60, value % 60);
+    mvaddnstr(line, COLUMNS[2].position, &value, COLUMNS[2].width);
+
     let value = &humanize(proc.status.vm_rss);
-    mvaddnstr(line, COLUMNS[2].position, value, COLUMNS[0].width);
+    mvaddnstr(line, COLUMNS[3].position, value, COLUMNS[3].width);
 
     let value = &humanize(proc.status.vm_swap);
-    mvaddnstr(line, COLUMNS[3].position, value, COLUMNS[0].width);
+    mvaddnstr(line, COLUMNS[4].position, value, COLUMNS[4].width);
 
     let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
-    mvaddnstr(line, COLUMNS[4].position, value, COLUMNS[0].width);
+    mvaddnstr(line, COLUMNS[5].position, value, COLUMNS[5].width);
 
     self.line += 1;
   }

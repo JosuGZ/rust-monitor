@@ -158,6 +158,19 @@ fn parse_status_3() {
 }
 
 #[test]
+fn parse_stat_1() {
+  const STAT_EXAMPLE_1: &str = include_str!("./examples/stat_1.txt");
+  let expected = Some(Stat {
+    utime: 14,
+    stime: 15
+  });
+
+  let result = parse_stat(STAT_EXAMPLE_1);
+
+  assert_eq!(expected, result);
+}
+
+#[test]
 fn parse_uptime_1() {
   let expected = Uptime {
     up: 2978723.18_f64,

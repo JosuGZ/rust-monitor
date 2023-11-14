@@ -1,13 +1,33 @@
-use std::ops::Sub;
+use std::ops::{AddAssign, Sub};
 
 /// Stores either a process, or an aggregation of a group of processes
+///
+/// Adding two of this will convert them in a group, adding the internal values.
+/// In this case, values like pid or cmdline become useles.
+///
+/// Subtracting two `Proc` will yied the difference, useful to know how the data
+/// has changed over time (TODO)
+///
+/// TODO: Both sume and subtract are only implemented for the fields I'm
+/// interested in, in order to use more fields, this has to be reviewed
 #[derive(Clone, Debug, PartialEq)]
 pub struct Proc {
   /// Number of processes in a group
   pub count: i32,
   pub pid: i32,
   pub cmdline: String,
-  pub status: Status
+  pub status: Status,
+  pub stat: Stat
+}
+
+impl AddAssign for Proc {
+  fn add_assign(&mut self, rhs: Self) {
+    self.count += rhs.count;
+    self.status.vm_rss += rhs.status.vm_rss;
+    self.status.vm_swap += rhs.status.vm_swap;
+
+    self.stat += rhs.stat;
+  }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -70,5 +90,35 @@ impl Sub<&VmStat> for &VmStat {
       pswpin: self.pswpin - rhs.pswpin,
       pswpout: self.pswpout - rhs.pswpout
     }
+  }
+}
+
+/// Represents the information extracted from the `/proc/<PID>/stat` file.
+///
+/// https://stackoverflow.com/a/60441542/1971526
+///
+/// man 5 proc
+#[derive(Clone, Debug, PartialEq)]
+pub struct Stat {
+  /// (14) utime  %lu
+  ///
+  /// Amount of time that this process has been scheduled in user mode, measured
+  /// in clock ticks (divide by sysconf(_SC_CLK_TCK)).  This includes guest
+  /// time, guest_time (time spent running a virtual CPU, see below), so that
+  /// applications that are not aware of the guest time field do not lose that
+  /// time from their calculations.
+  pub utime: u64,
+
+  /// (15) stime  %lu
+  ///
+  /// Amount of time that this process has been scheduled in kernel mode,
+  /// measured in clock ticks (divide by sysconf(_SC_CLK_TCK)).
+  pub stime: u64,
+}
+
+impl AddAssign for Stat {
+  fn add_assign(&mut self, rhs: Self) {
+    self.utime += rhs.utime;
+    self.stime += rhs.stime;
   }
 }

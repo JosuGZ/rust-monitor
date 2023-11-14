@@ -14,6 +14,7 @@ use super::proc::Proc;
 use super::proc::Uptime;
 use super::proc::MemInfo;
 use super::proc::VmStat;
+use super::proc::Stat;
 
 fn get_value(name: &str, line: &str) -> Option<u64> {
   if !line.starts_with(name) { return None; }
@@ -144,6 +145,18 @@ fn parse_status(file_content: &str) -> Option<Status> {
   Some(result)
 }
 
+fn parse_stat(file_content: &str) -> Option<Stat> {
+  // Name is the second element
+  // TODO: in case of error, display something
+  let contents = file_content.split(')').nth(1)?.split_whitespace();
+
+  let mut contents = contents.skip(11);
+  Some(Stat {
+    utime: contents.next()?.parse().ok()?,
+    stime: contents.next()?.parse().ok()?
+  })
+}
+
 pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
 
   let name = entry.file_name().into_string().ok()?;
@@ -155,13 +168,18 @@ pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
   let status_path = format!("/proc/{name}/status");
   let status_string = read_to_string(status_path).ok()?;
 
+  let stat_path = format!("/proc/{name}/stat");
+  let stat_string = read_to_string(stat_path).ok()?;
+
   let status = parse_status(&status_string)?;
+  let stat = parse_stat(&stat_string)?;
 
   let proc = Proc {
     pid,
     count: 1,
     cmdline,
-    status
+    status,
+    stat
   };
 
   // Here we are sure we have a number, now we check if it is a process
