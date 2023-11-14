@@ -102,11 +102,13 @@ impl Terminal {
   pub fn print_swap_stats(
     &mut self, pages_in: u64, pages_out: u64
   ) {
-    let pages_in =  humanize(pages_in * 1024 * 4);
-    let pages_out = humanize(pages_out * 1024 * 4);
-    let formatted = format!("Swap: in: {pages_in} out: {pages_out}");
-    mvaddnstr(self.line, 0, &formatted, 80);
-    self.line += 1;
+    if pages_in != 0 || pages_out != 0 {
+      let pages_in =  humanize(pages_in * 1024 * 4);
+      let pages_out = humanize(pages_out * 1024 * 4);
+      let formatted = format!("Swap: in: {pages_in} out: {pages_out}");
+      mvaddnstr(self.line, 0, &formatted, 80);
+      self.line += 1;
+    }
   }
 
   pub fn print_battery(
