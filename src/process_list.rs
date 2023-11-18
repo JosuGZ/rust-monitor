@@ -26,9 +26,17 @@ impl ProcessList {
 
       if let Some(last_instance) = self.lists[self.last_list].remove(&pid) {
         *process -= last_instance;
+      } else {
+        process.new = true;
       }
     }
 
+    // Todo: la CPU es incorrecta para los borrados al no haber resta
+    for deleted in &mut self.lists[self.last_list] {
+      deleted.1.deleted = true;
+      let proc = deleted.1;
+      list.push(proc.clone());
+    }
 
     self.lists[self.last_list].clear();
 

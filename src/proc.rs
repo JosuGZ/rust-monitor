@@ -17,7 +17,9 @@ pub struct Proc {
   pub pid: i32,
   pub cmdline: String,
   pub status: Status,
-  pub stat: Stat
+  pub stat: Stat,
+  pub new: bool,
+  pub deleted: bool
 }
 
 impl AddAssign for Proc {
@@ -25,6 +27,9 @@ impl AddAssign for Proc {
     self.count += rhs.count;
     self.status.vm_rss += rhs.status.vm_rss;
     self.status.vm_swap += rhs.status.vm_swap;
+
+    self.new = self.new || rhs.new;
+    self.deleted = self.deleted || rhs.deleted;
 
     self.stat += rhs.stat;
   }

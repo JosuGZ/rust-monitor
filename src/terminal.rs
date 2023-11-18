@@ -69,6 +69,11 @@ impl Terminal {
     timeout(2000);
     start_color();
 
+    init_pair(1, COLOR_BLACK, COLOR_WHITE);
+    init_pair(2, COLOR_BLACK, COLOR_GREEN);
+    init_pair(3, COLOR_BLACK, COLOR_RED);
+    init_pair(4, COLOR_BLACK, COLOR_YELLOW);
+
     let sc_clk_tck = unsafe {
       let sc_clk_tck = sysconf(_SC_CLK_TCK);
       if sc_clk_tck > 0 {
@@ -147,7 +152,6 @@ impl Terminal {
 
   pub fn print_header(&mut self, group: bool, selected_col: usize) {
     self.update_time();
-    init_pair(1, COLOR_BLACK, COLOR_WHITE);
     attron(COLOR_PAIR(1));
 
     for (i, column) in COLUMNS.iter().enumerate() {
@@ -168,6 +172,19 @@ impl Terminal {
 
   pub fn print_line(&mut self, proc: &Proc, is_group: bool) {
     let line = self.line;
+
+    let color = if proc.new { Some(2) }
+      else if proc.deleted { Some(3) }
+      else if proc.new && proc.deleted { Some(4)}
+      else { None }
+    ;
+
+    if let Some(color) = color {
+      if proc.new { attron(COLOR_PAIR(color)); }
+      if proc.deleted { attron(COLOR_PAIR(color)); }
+      if proc.new && proc.deleted { attron(COLOR_PAIR(color)); }
+      mvaddnstr(line, 0, &" ".repeat(59), 8000);
+    }
 
     let value = &proc.status.name;
     mvaddnstr(line, COLUMNS[0].position, value, COLUMNS[0].width);
@@ -199,6 +216,9 @@ impl Terminal {
     let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
     mvaddnstr(line, COLUMNS[5].position, value, COLUMNS[5].width);
 
+    if let Some(color) = color {
+      attroff(COLOR_PAIR(color));
+    }
     self.line += 1;
   }
 

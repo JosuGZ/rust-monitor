@@ -179,7 +179,9 @@ pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
     count: 1,
     cmdline,
     status,
-    stat
+    stat,
+    new: false,
+    deleted: false
   };
 
   // Here we are sure we have a number, now we check if it is a process
