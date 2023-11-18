@@ -2,6 +2,8 @@
 # Linux: ln -s .git/info/exclude .personalGitignore
 .personalGitignore
 
+activate.sh
+
 # Rust
 /target
 
