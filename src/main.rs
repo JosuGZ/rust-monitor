@@ -127,7 +127,7 @@ fn main() {
 
   let mut process_list = ProcessList::new();
 
-  let mut sort_function_index: usize = 4;
+  let mut sort_function_index: usize = 1;
   let mut group: bool = false;
   let mut last_uptime = Uptime::default();
   let mut uptime: Uptime;
