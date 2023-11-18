@@ -46,7 +46,7 @@ struct Column<'a> {
 static COLUMNS: [Column; 6] = [
   Column { name: "Name                        ", width: 16, position:  0 },
   Column { name: "PID                         ", width:  6, position: 17 },
-  Column { name: "[% CPU]                       ", width:  8, position: 24 },
+  Column { name: "[% CPU]                     ", width:  8, position: 24 },
   Column { name: "RSS                         ", width:  8, position: 32 },
   Column { name: "Swap                        ", width:  8, position: 41 },
   Column { name: "Sum                         ", width:  8, position: 50 }
