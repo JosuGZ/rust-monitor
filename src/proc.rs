@@ -1,4 +1,4 @@
-use std::ops::{AddAssign, Sub};
+use std::ops::{AddAssign, SubAssign, Sub};
 
 /// Stores either a process, or an aggregation of a group of processes
 ///
@@ -27,6 +27,15 @@ impl AddAssign for Proc {
     self.status.vm_swap += rhs.status.vm_swap;
 
     self.stat += rhs.stat;
+  }
+}
+
+impl SubAssign for Proc {
+
+  /// When subtracting we don't subtrackt most metrics, only CPU etc
+  fn sub_assign(&mut self, rhs: Self) {
+
+    self.stat -= rhs.stat;
   }
 }
 
@@ -120,5 +129,15 @@ impl AddAssign for Stat {
   fn add_assign(&mut self, rhs: Self) {
     self.utime += rhs.utime;
     self.stime += rhs.stime;
+  }
+}
+
+impl SubAssign for Stat {
+
+  /// Subtracting `Stat` values is not a typical subtraction. It is meant to
+  /// compute CPU derivatives //TODO:
+  fn sub_assign(&mut self, rhs: Self) {
+    self.utime -= rhs.utime;
+    self.stime -= rhs.stime;
   }
 }

@@ -3,6 +3,8 @@
 extern crate ncurses;
 extern crate num_cpus;
 
+use std::time::Instant;
+
 use libc::{sysconf, _SC_CLK_TCK}; // TODO: Move out here
 use ncurses::*;
 use super::util::humanize;
@@ -44,15 +46,17 @@ struct Column<'a> {
 static COLUMNS: [Column; 6] = [
   Column { name: "Name                        ", width: 16, position:  0 },
   Column { name: "PID                         ", width:  6, position: 17 },
-  Column { name: "CPU TIME                    ", width: 10, position: 24 },
-  Column { name: "RSS                         ", width:  8, position: 34 },
-  Column { name: "Swap                        ", width:  8, position: 43 },
-  Column { name: "Sum                         ", width:  8, position: 52 }
+  Column { name: "[% CPU]                       ", width:  8, position: 24 },
+  Column { name: "RSS                         ", width:  8, position: 32 },
+  Column { name: "Swap                        ", width:  8, position: 41 },
+  Column { name: "Sum                         ", width:  8, position: 50 }
 ];
 
 pub struct Terminal {
   line: i32,
-  sc_clk_tck: u64
+  sc_clk_tck: u64,
+  last_update: Instant,
+  elapsed_time: f32
 }
 
 impl Terminal {
@@ -75,7 +79,10 @@ impl Terminal {
     };
 
     Terminal {
-      line: 0, sc_clk_tck
+      line: 0,
+      sc_clk_tck,
+      last_update: Instant::now(),
+      elapsed_time: 0f32
     }
   }
 
@@ -133,7 +140,13 @@ impl Terminal {
     self.line += 1;
   }
 
+  fn update_time(&mut self) {
+    self.elapsed_time = self.last_update.elapsed().as_millis() as f32 / 1000f32;
+    self.last_update = Instant::now();
+  }
+
   pub fn print_header(&mut self, group: bool, selected_col: usize) {
+    self.update_time();
     init_pair(1, COLOR_BLACK, COLOR_WHITE);
     attron(COLOR_PAIR(1));
 
@@ -168,8 +181,13 @@ impl Terminal {
     }
 
     let value = proc.stat.utime + proc.stat.stime;
-    let value = value / self.sc_clk_tck;
-    let value = format!("{:5}:{:02}", value / 60, value % 60);
+    let value = value * 100 / self.sc_clk_tck;
+    let value = if self.elapsed_time != 0f32 {
+      value as f32 / self.elapsed_time
+    } else {
+      0f32
+    };
+    let value = format!("{value:7.1} %");
     mvaddnstr(line, COLUMNS[2].position, &value, COLUMNS[2].width);
 
     let value = &humanize(proc.status.vm_rss);

@@ -5,6 +5,7 @@
 
 mod util;
 mod proc;
+mod process_list;
 mod parsers;
 mod terminal;
 mod battery;
@@ -14,6 +15,7 @@ use std::collections::HashMap;
 
 use parsers::get_vm_stat;
 use proc::*;
+use process_list::*;
 use terminal::{Terminal, Key};
 use crate::battery::Battery;
 
@@ -88,6 +90,7 @@ static GROUP_SORT_FUNCTIONS: [SortFunction; 5] = [
 
 fn do_reading(
   terminal: &mut Terminal,
+  process_list: &mut ProcessList,
   sort_function: SortFunction, group: bool
 ) -> Result<(), std::io::Error> {
   let readed = read_dir("/proc")?;
@@ -95,6 +98,7 @@ fn do_reading(
   let procs = readed.filter_map(|read_dir| get_proc(&read_dir.ok()?));
 
   let mut procs_vec: Vec<Proc> = procs.collect();
+  process_list.on_list(&mut procs_vec);
 
   if group {
     let mut group = HashMap::new();
@@ -120,6 +124,8 @@ fn do_reading(
 fn main() {
   let mut terminal = Terminal::init();
   let mut battery = Battery::init();
+
+  let mut process_list = ProcessList::new();
 
   let mut sort_function_index: usize = 4;
   let mut group: bool = false;
@@ -162,7 +168,8 @@ fn main() {
 
     terminal.print_header(group, sort_function_index);
     let result = do_reading(
-      &mut terminal, sort_functions[sort_function_index], group
+      &mut terminal, &mut process_list,
+      sort_functions[sort_function_index], group
     );
     if let Err(err) = result { println!("{err}"); }
     terminal.refresh();
