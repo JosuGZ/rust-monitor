@@ -1,0 +1,11 @@
+processor	: 0
+cpu MHz		: 2000.000
+
+processor	: 1
+cpu MHz		: 2000.000
+
+processor	: 2
+cpu MHz		: 2000.000
+
+processor	: 3
+cpu MHz		: 2000.000

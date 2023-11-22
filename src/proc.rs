@@ -146,3 +146,9 @@ impl SubAssign for Stat {
     self.stime -= rhs.stime;
   }
 }
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct CpuInfo {
+  pub processor: usize,
+  pub mhz: f32
+}

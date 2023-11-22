@@ -14,6 +14,7 @@ use std::fs::read_dir;
 use std::collections::HashMap;
 use std::process::exit;
 
+use parsers::get_cpu_info;
 use parsers::get_vm_stat;
 use proc::*;
 use process_list::*;
@@ -152,6 +153,9 @@ fn main() {
     terminal.print_uptime(&uptime, &last_uptime);
     last_uptime = uptime;
     terminal.print_mem_info(&get_mem_info());
+    if let Some(cpu_info) = get_cpu_info() {
+      terminal.print_cpu_speed(&cpu_info);
+    }
     vmstat = get_vm_stat();
     let swap_stats = &vmstat - &last_vmstat;
     terminal.print_swap_stats(swap_stats.pswpin, swap_stats.pswpout);

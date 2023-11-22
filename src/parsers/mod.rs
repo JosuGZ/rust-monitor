@@ -15,6 +15,7 @@ use super::proc::Uptime;
 use super::proc::MemInfo;
 use super::proc::VmStat;
 use super::proc::Stat;
+use crate::proc::CpuInfo;
 
 fn get_value(name: &str, line: &str) -> Option<u64> {
   if !line.starts_with(name) { return None; }
@@ -272,4 +273,36 @@ pub fn get_vm_stat() -> VmStat {
   let vmstat_path = Path::new("/proc/vmstat");
   let vmstat = read_to_string(vmstat_path).unwrap();
   parse_vm_stat(&vmstat)
+}
+
+pub fn parse_cpu_info(file_content: &str) -> Option<Vec<CpuInfo>> {
+  file_content.split_terminator("\n\n").map(|cpu_info| {
+    let mut processor = None;
+    let mut mhz = None;
+
+    for line in cpu_info.lines() {
+      let split = line.split_once(':').map(|v| (v.0.trim(), v.1.trim()));
+      if let Some((key, value)) = split {
+        match key {
+          "processor" => processor = value.parse().ok(),
+          "cpu MHz"   => mhz = value.parse().ok(),
+          _ => {}
+        }
+      }
+    }
+
+    if let (Some(processor), Some(mhz)) = (processor, mhz) {
+      Some(CpuInfo {
+        processor, mhz
+      })
+    } else {
+      None
+    }
+  }).collect()
+}
+
+pub fn get_cpu_info() -> Option<Vec<CpuInfo>> {
+  let cpu_info_path = Path::new("/proc/cpuinfo");
+  let cpu_info = read_to_string(cpu_info_path).unwrap();
+  parse_cpu_info(&cpu_info)
 }

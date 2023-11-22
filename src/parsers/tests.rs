@@ -122,3 +122,19 @@ fn test_parse_vm_stat() {
 
   assert_eq!(expected, vmstat);
 }
+
+#[test]
+fn test_parse_cpu_info() {
+  const CPU_INFO_EXAMPLE_1: &str = include_str!("./examples/cpu_info_example_1.txt");
+  let expected = Some(vec![
+    CpuInfo { processor: 0, mhz: 2000f32 },
+    CpuInfo { processor: 1, mhz: 2000f32 },
+    CpuInfo { processor: 2, mhz: 2000f32 },
+    CpuInfo { processor: 3, mhz: 2000f32 }
+  ]);
+
+
+  let cpu_info = parse_cpu_info(CPU_INFO_EXAMPLE_1);
+
+  assert_eq!(expected, cpu_info);
+}

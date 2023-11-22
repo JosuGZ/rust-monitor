@@ -7,10 +7,12 @@ use std::time::Instant;
 
 use libc::{sysconf, _SC_CLK_TCK}; // TODO: Move out here
 use ncurses::*;
+
 use super::util::humanize;
 use super::proc::Proc;
 use super::proc::Uptime;
 use super::proc::MemInfo;
+use crate::proc::CpuInfo;
 
 pub enum Key {
   Up,
@@ -124,6 +126,25 @@ impl Terminal {
       humanize(mem_info.swap_total - mem_info.swap_free),
       humanize(mem_info.swap_total)
     );
+    mvaddnstr(self.line, 0, &formatted, 80);
+    self.line += 1;
+  }
+
+  pub fn print_cpu_speed(&mut self, cpu_info: &[CpuInfo]) {
+    let mut speed_sum = 0f32;
+    let mut max_speed = 0f32;
+    let mut min_speed = 1000000f32;
+
+    for info in cpu_info {
+      speed_sum += info.mhz;
+      if info.mhz > max_speed { max_speed = info.mhz; }
+      if info.mhz < min_speed { min_speed = info.mhz; }
+    }
+
+    let min = min_speed;
+    let max = max_speed;
+    let avg = speed_sum / cpu_info.len() as f32;
+    let formatted = format!("CPU Speed: [Lower: {min:.0} MHz, Avg: {avg:.0} MHz, Max {max:.0} MHz]");
     mvaddnstr(self.line, 0, &formatted, 80);
     self.line += 1;
   }
