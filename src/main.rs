@@ -12,6 +12,7 @@ mod battery;
 
 use std::fs::read_dir;
 use std::collections::HashMap;
+use std::process::exit;
 
 use parsers::get_vm_stat;
 use proc::*;
@@ -122,7 +123,9 @@ fn do_reading(
 }
 
 fn main() {
-  let mut terminal = Terminal::init();
+  let delay_secs = parse_arguments();
+
+  let mut terminal = Terminal::init(delay_secs);
   let mut battery = Battery::init();
 
   let mut process_list = ProcessList::new();
@@ -197,4 +200,37 @@ fn main() {
   }
 
   terminal.deinit(); // TODO: Make sure this gets called
+}
+
+fn parse_arguments() -> u16 {
+  let mut args = std::env::args();
+  let arg_1 = args.nth(1);
+  let arg_2 = args.next();
+
+  if args.next().is_some() {
+    println!("Too many arguments.");
+    exit(1);
+  }
+
+  let delay_secs;
+
+  match (arg_1, arg_2) {
+    (None, None) => delay_secs = 2,
+
+    (Some(arg_1), Some(arg_2)) if arg_1 == "-d" => {
+      if let Ok(delay) = arg_2.parse() {
+        delay_secs = delay;
+      } else {
+        println!("Invalid delay seconds.");
+        exit(1);
+      }
+    }
+
+    _ => {
+      println!("Bad arguments.");
+      exit(1);
+    }
+  }
+
+  delay_secs
 }

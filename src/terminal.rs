@@ -61,12 +61,12 @@ pub struct Terminal {
 
 impl Terminal {
 
-  pub fn init() -> Terminal {
+  pub fn init(delay_secs: u16) -> Terminal {
     initscr();
     raw();
     keypad(stdscr(), true);
     noecho();
-    timeout(2000);
+    timeout(delay_secs as i32 * 1000);
     start_color();
 
     init_pair(1, COLOR_BLACK, COLOR_WHITE);
