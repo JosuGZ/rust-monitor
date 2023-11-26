@@ -144,6 +144,7 @@ fn main() {
     };
 
     terminal.clear();
+    terminal.update_time();
     uptime = get_uptime();
     terminal.print_uptime(&uptime, &last_uptime);
     last_uptime = uptime;

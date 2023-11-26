@@ -91,6 +91,11 @@ impl Terminal {
     }
   }
 
+  pub fn update_time(&mut self) {
+    self.elapsed_time = self.last_update.elapsed().as_millis() as f32 / 1000f32;
+    self.last_update = Instant::now();
+  }
+
   pub fn print_uptime(&mut self, uptime: &Uptime, last_uptime: &Uptime) {
     let seconds_up = uptime.up as i32;
     let mut minutes_up = seconds_up / 60;
@@ -145,13 +150,7 @@ impl Terminal {
     self.line += 1;
   }
 
-  fn update_time(&mut self) {
-    self.elapsed_time = self.last_update.elapsed().as_millis() as f32 / 1000f32;
-    self.last_update = Instant::now();
-  }
-
   pub fn print_header(&mut self, group: bool, selected_col: usize) {
-    self.update_time();
     attron(COLOR_PAIR(1));
 
     for (i, column) in COLUMNS.iter().enumerate() {
