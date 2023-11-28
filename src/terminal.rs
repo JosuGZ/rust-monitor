@@ -193,9 +193,9 @@ impl Terminal {
   pub fn print_line(&mut self, proc: &Proc, is_group: bool) {
     let line = self.line;
 
-    let color = if proc.new { Some(2) }
+    let color = if proc.new && proc.deleted { Some(4) }
       else if proc.deleted { Some(3) }
-      else if proc.new && proc.deleted { Some(4)}
+      else if proc.new { Some(2) }
       else { None }
     ;
 
