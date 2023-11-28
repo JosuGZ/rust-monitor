@@ -23,15 +23,19 @@ pub struct Proc {
 }
 
 impl AddAssign for Proc {
-  fn add_assign(&mut self, rhs: Self) {
-    self.count += rhs.count;
-    self.status.vm_rss += rhs.status.vm_rss;
-    self.status.vm_swap += rhs.status.vm_swap;
 
+  fn add_assign(&mut self, rhs: Self) {
     self.new = self.new || rhs.new;
     self.deleted = self.deleted || rhs.deleted;
 
-    self.stat += rhs.stat;
+    if !rhs.deleted {
+      self.count += rhs.count;
+
+      self.status.vm_rss += rhs.status.vm_rss;
+      self.status.vm_swap += rhs.status.vm_swap;
+
+      self.stat += rhs.stat;
+    }
   }
 }
 
