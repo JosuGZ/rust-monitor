@@ -15,6 +15,7 @@ use super::proc::Uptime;
 use super::proc::MemInfo;
 use super::proc::VmStat;
 use super::proc::Stat;
+use super::proc::IoStats;
 use crate::proc::CpuInfo;
 
 fn get_value(name: &str, line: &str) -> Option<u64> {
@@ -158,6 +159,22 @@ fn parse_stat(file_content: &str) -> Option<Stat> {
   })
 }
 
+fn parse_io(file_content: &str) -> Option<IoStats> {
+  let mut io_stats = IoStats::default();
+  let lines = file_content.split('\n');
+
+  for line in lines {
+    if let Some(value) = get_value("read_bytes:", line) {
+      io_stats.read_bytes = value;
+    }
+    else if let Some(value) = get_value("write_bytes:", line) {
+      io_stats.write_bytes = value;
+    }
+  }
+
+  Some(io_stats)
+}
+
 pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
 
   let name = entry.file_name().into_string().ok()?;
@@ -172,8 +189,12 @@ pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
   let stat_path = format!("/proc/{name}/stat");
   let stat_string = read_to_string(stat_path).ok()?;
 
+  let io_path = format!("/proc/{name}/io");
+  let io_string = read_to_string(io_path).ok()?;
+
   let status = parse_status(&status_string)?;
   let stat = parse_stat(&stat_string)?;
+  let io = parse_io(&io_string)?;
 
   let proc = Proc {
     pid,
@@ -181,6 +202,7 @@ pub fn get_proc(entry: &DirEntry) -> Option<Proc> {
     cmdline,
     status,
     stat,
+    io,
     new: false,
     deleted: false
   };

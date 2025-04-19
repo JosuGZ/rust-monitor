@@ -72,22 +72,30 @@ fn sum_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
   comp(&a_value, &b_value)
 }
 
+fn io_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
+  let a_value = a.io.read_bytes + a.io.write_bytes;
+  let b_value = b.io.read_bytes + b.io.write_bytes;
+  comp(&a_value, &b_value)
+}
+
 type SortFunction = fn (a: &proc::Proc, b: &proc::Proc) -> std::cmp::Ordering;
 
-static SORT_FUNCTIONS: [SortFunction; 5] = [
+static SORT_FUNCTIONS: [SortFunction; 6] = [
   pid_sort_function,
   cpu_sort_function,
   rss_sort_function,
   swap_sort_function,
-  sum_sort_function
+  sum_sort_function,
+  io_sort_function
 ];
 
-static GROUP_SORT_FUNCTIONS: [SortFunction; 5] = [
+static GROUP_SORT_FUNCTIONS: [SortFunction; 6] = [
   count_sort_function,
   cpu_sort_function,
   rss_sort_function,
   swap_sort_function,
-  sum_sort_function
+  sum_sort_function,
+  io_sort_function
 ];
 
 fn do_reading(

@@ -18,6 +18,7 @@ pub struct Proc {
   pub cmdline: String,
   pub status: Status,
   pub stat: Stat,
+  pub io: IoStats,
   pub new: bool,
   pub deleted: bool
 }
@@ -35,6 +36,7 @@ impl AddAssign for Proc {
       self.status.vm_swap += rhs.status.vm_swap;
 
       self.stat += rhs.stat;
+      self.io += rhs.io;
     }
   }
 }
@@ -43,8 +45,8 @@ impl SubAssign for Proc {
 
   /// When subtracting we don't subtrackt most metrics, only CPU etc
   fn sub_assign(&mut self, rhs: Self) {
-
     self.stat -= rhs.stat;
+    self.io -= rhs.io;
   }
 }
 
@@ -155,4 +157,24 @@ impl SubAssign for Stat {
 pub struct CpuInfo {
   pub processor: usize,
   pub mhz: f32
+}
+
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct IoStats {
+  pub read_bytes: u64,
+  pub write_bytes: u64,
+}
+
+impl AddAssign for IoStats {
+  fn add_assign(&mut self, rhs: Self) {
+    self.read_bytes += rhs.read_bytes;
+    self.write_bytes += rhs.write_bytes;
+  }
+}
+
+impl SubAssign for IoStats {
+  fn sub_assign(&mut self, rhs: Self) {
+    self.read_bytes -= rhs.read_bytes;
+    self.write_bytes -= rhs.write_bytes;
+  }
 }

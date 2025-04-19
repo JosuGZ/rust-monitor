@@ -45,13 +45,14 @@ struct Column<'a> {
   position: i32
 }
 
-static COLUMNS: [Column; 6] = [
+static COLUMNS: [Column; 7] = [
   Column { name: "Name                        ", width: 16, position:  0 },
   Column { name: "PID                         ", width:  6, position: 17 },
   Column { name: "[% CPU]                     ", width:  8, position: 24 },
   Column { name: "RSS                         ", width:  8, position: 32 },
   Column { name: "Swap                        ", width:  8, position: 41 },
-  Column { name: "Sum                         ", width:  8, position: 50 }
+  Column { name: "Sum                         ", width:  8, position: 50 },
+  Column { name: "IO                          ", width: 10, position: 59 }
 ];
 
 pub struct Terminal {
@@ -203,7 +204,7 @@ impl Terminal {
       if proc.new { attron(COLOR_PAIR(color)); }
       if proc.deleted { attron(COLOR_PAIR(color)); }
       if proc.new && proc.deleted { attron(COLOR_PAIR(color)); }
-      mvaddnstr(line, 0, &" ".repeat(59), 8000);
+      mvaddnstr(line, 0, &" ".repeat(69), 8000);
     }
 
     let value = &proc.status.name;
@@ -235,6 +236,15 @@ impl Terminal {
 
     let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
     mvaddnstr(line, COLUMNS[5].position, value, COLUMNS[5].width);
+
+    let value = proc.io.read_bytes + proc.io.write_bytes;
+    let value = if self.elapsed_time != 0f32 {
+      let rate = (value as f32 / self.elapsed_time) as u64;
+      humanize(rate) + "/s"
+    } else {
+      "0 B/s".to_string()
+    };
+    mvaddnstr(line, COLUMNS[6].position, &value, COLUMNS[6].width);
 
     if let Some(color) = color {
       attroff(COLOR_PAIR(color));
