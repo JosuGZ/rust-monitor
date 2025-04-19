@@ -8,4 +8,5 @@ activate.sh
 /target
 
 # Visual Studio Code
-.vscode/
+.vscode/*
+!.vscode/extensions.json
