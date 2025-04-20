@@ -164,11 +164,26 @@ fn parse_io(file_content: &str) -> Option<IoStats> {
   let lines = file_content.split('\n');
 
   for line in lines {
-    if let Some(value) = get_value("read_bytes:", line) {
+    if let Some(value) = get_value("rchar:", line) {
+      io_stats.rchar = value;
+    }
+    else if let Some(value) = get_value("wchar:", line) {
+      io_stats.wchar = value;
+    }
+    else if let Some(value) = get_value("syscr:", line) {
+      io_stats.syscr = value;
+    }
+    else if let Some(value) = get_value("syscw:", line) {
+      io_stats.syscw = value;
+    }
+    else if let Some(value) = get_value("read_bytes:", line) {
       io_stats.read_bytes = value;
     }
     else if let Some(value) = get_value("write_bytes:", line) {
       io_stats.write_bytes = value;
+    }
+    else if let Some(value) = get_value("cancelled_write_bytes:", line) {
+      io_stats.cancelled_write_bytes = value;
     }
   }
 

@@ -159,22 +159,56 @@ pub struct CpuInfo {
   pub mhz: f32
 }
 
+/// IO statistics for a process and its waited-for children, as reported by
+/// `/proc/<pid>/io`.
+///
+/// See man proc(5) for more details.
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct IoStats {
+  /// The number of bytes returned by successful read(2) and similar system
+  /// calls
+  pub rchar: u64,
+  /// The number of bytes returned by successful write(2) and similar system
+  /// calls
+  pub wchar: u64,
+  /// The number of "file read" system calls - those from the read(2) family,
+  /// sendfile(2), copy_file_range(2), and ioctl(2) BTRFS_IOC_ENCODED_READ
+  pub syscr: u64,
+  /// The number of "file write" system calls - those from the write(2) family,
+  /// sendfile(2), copy_file_range(2), and ioctl(2) BTRFS_IOC_ENCODED_WRITE
+  pub syscw: u64,
+  /// The number of bytes really fetched from the storage layer.
+  /// This is accurate for block-backed filesystems.
   pub read_bytes: u64,
+  /// The number of bytes really sent to the storage layer
   pub write_bytes: u64,
+  /// The number of bytes "saved" from I/O writeback due to truncation.
+  /// This can yield to having done negative I/O if caches dirtied by another
+  /// process are truncated. This applies to I/O already accounted-for in
+  /// write_bytes.
+  pub cancelled_write_bytes: u64
 }
 
 impl AddAssign for IoStats {
   fn add_assign(&mut self, rhs: Self) {
+    self.rchar += rhs.rchar;
+    self.wchar += rhs.wchar;
+    self.syscr += rhs.syscr;
+    self.syscw += rhs.syscw;
     self.read_bytes += rhs.read_bytes;
     self.write_bytes += rhs.write_bytes;
+    self.cancelled_write_bytes += rhs.cancelled_write_bytes;
   }
 }
 
 impl SubAssign for IoStats {
   fn sub_assign(&mut self, rhs: Self) {
+    self.rchar -= rhs.rchar;
+    self.wchar -= rhs.wchar;
+    self.syscr -= rhs.syscr;
+    self.syscw -= rhs.syscw;
     self.read_bytes -= rhs.read_bytes;
     self.write_bytes -= rhs.write_bytes;
+    self.cancelled_write_bytes -= rhs.cancelled_write_bytes;
   }
 }

@@ -4,6 +4,7 @@ use super::*;
 
 static STATUS_EXAMPLE_1: &str = include_str!("./examples/status_example_1.txt");
 static STATUS_EXAMPLE_2: &str = include_str!("./examples/status_example_2.txt");
+static IO_EXAMPLE: &str = include_str!("./examples/io_example.txt");
 
 #[test]
 fn parse_status_1() {
@@ -137,4 +138,21 @@ fn test_parse_cpu_info() {
   let cpu_info = parse_cpu_info(CPU_INFO_EXAMPLE_1);
 
   assert_eq!(expected, cpu_info);
+}
+
+#[test]
+fn parse_io_example() {
+  let expected = Some(IoStats {
+    rchar: 1234,
+    wchar: 5678,
+    syscr: 9,
+    syscw: 10,
+    read_bytes: 11,
+    write_bytes: 12,
+    cancelled_write_bytes: 13
+  });
+
+  let io_stats = parse_io(IO_EXAMPLE);
+
+  assert_eq!(expected, io_stats);
 }
