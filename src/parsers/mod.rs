@@ -22,25 +22,16 @@ fn get_value(name: &str, line: &str) -> Option<u64> {
   if !line.starts_with(name) { return None; }
 
   let mut parts = line.split_whitespace();
-  let value = match parts.nth(1) {
-    Some(value) => value,
-    _ => return None
-  };
+  let value = parts.nth(1)?;
 
-  match u64::from_str(value) {
-    Ok(value) => Some(value),
-    _ => None
-  }
+  u64::from_str(value).ok()
 }
 
 fn get_value_str(name: &str, line: &str) -> Option<String> {
   if !line.starts_with(name) { return None; }
 
   let mut parts = line.split_whitespace();
-  let mut value_str = match parts.nth(1) {
-    Some(value) =>  value.to_string(),
-    _ => return None
-  };
+  let mut value_str = parts.nth(1).map(|v| v.to_string())?;
   for part in parts {
     value_str += " ";
     value_str += part;
@@ -52,7 +43,6 @@ fn get_value_str(name: &str, line: &str) -> Option<String> {
 fn parse_status(file_content: &str) -> Option<Status> {
   let mut lines = file_content.split('\n');
 
-  let name;
   let mut vm_peack = 0;
   let mut vm_size = 0;
   let mut vm_lck = 0;
@@ -71,11 +61,7 @@ fn parse_status(file_content: &str) -> Option<Status> {
 
 
   let first_line = lines.next().unwrap_or("");
-  if let Some(value_str) = get_value_str("Name:", first_line) {
-    name = value_str;
-  } else {
-    return None;
-  }
+  let name = get_value_str("Name:", first_line)?;
 
   for line in lines {
     if let Some(value) = get_value("VmPeak:", line) {
