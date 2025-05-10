@@ -189,6 +189,14 @@ pub struct IoStats {
   pub cancelled_write_bytes: u64
 }
 
+impl IoStats {
+
+  pub fn bytes(&self) -> u64 {
+    self.read_bytes + self.read_bytes
+  }
+
+}
+
 impl AddAssign for IoStats {
   fn add_assign(&mut self, rhs: Self) {
     self.rchar += rhs.rchar;

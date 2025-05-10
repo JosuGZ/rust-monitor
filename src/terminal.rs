@@ -237,7 +237,7 @@ impl Terminal {
     let value = &humanize(proc.status.vm_rss + proc.status.vm_swap);
     mvaddnstr(line, COLUMNS[5].position, value, COLUMNS[5].width);
 
-    let value = proc.io.read_bytes + proc.io.write_bytes;
+    let value = proc.io.bytes();
     let value = if self.elapsed_time != 0f32 {
       let rate = (value as f32 / self.elapsed_time) as u64;
       humanize(rate) + "/s"

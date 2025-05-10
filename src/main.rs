@@ -73,8 +73,8 @@ fn sum_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
 }
 
 fn io_sort_function(a: &Proc, b: &Proc) -> std::cmp::Ordering {
-  let a_value = a.io.read_bytes + a.io.write_bytes;
-  let b_value = b.io.read_bytes + b.io.write_bytes;
+  let a_value = a.io.bytes();
+  let b_value = b.io.bytes();
   comp(&a_value, &b_value)
 }
 
